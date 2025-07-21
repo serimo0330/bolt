@@ -357,37 +357,10 @@ const NextGenSOCCourse = () => {
                         </div>
                       </div>
 
-                      {/* 상황 정보 */}
-                      <div className="mb-4">
-                        <h4 className="text-green-400 font-bold mb-2">상황 정보:</h4>
-                        <p className="text-green-200 text-sm leading-relaxed">
-                          {scenario.situation}
-                        </p>
-                      </div>
-
-                      {/* AI 기반 대응 흐름 */}
-                      <div className="mb-4">
-                        <h4 className="text-blue-400 font-bold mb-2 flex items-center gap-2">
-                          <MessageSquare className="w-4 h-4" />
-                          AI 기반 대응 흐름:
-                        </h4>
-                        <p className="text-green-200 text-sm leading-relaxed">
-                          {scenario.flow}
-                        </p>
-                      </div>
-
-                      {/* 대응 결과 */}
-                      <div className="mb-6">
-                        <h4 className="text-purple-400 font-bold mb-2">대응 결과:</h4>
-                        <p className="text-green-200 text-sm leading-relaxed">
-                          {scenario.result}
-                        </p>
-                      </div>
-
                       {/* 시작 버튼 */}
                       <button
                         onClick={() => handleScenarioStart(scenario.id)}
-                        className="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 
+                        className="w-full mt-4 px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 
                                  border-2 border-green-400 rounded-lg text-white font-bold
                                  hover:from-green-500 hover:to-green-600 hover:border-green-300
                                  transition-all duration-300 flex items-center justify-center gap-2"
