@@ -169,42 +169,11 @@ const NextGenSOCCourse = () => {
                     <p className="text-green-200 mb-3">
                       <strong>역할:</strong> AI가 현재 사고의 맥락을 분석하여, 가장 적합한 플레이북을 자동으로 추천해주거나, 기존 플레이북에 새로운 대응 단계를 동적으로 추가할 것을 제안합니다.
                     </p>
-                    <p className="text-green-200 text-sm">
-                      <strong>사용법:</strong> 분석가는 AI의 추천을 검토하고 클릭 한 번으로 대응을 실행하거나, 제안을 수정하여 더 정교한 대응을 수행합니다.
-                    </p>
-                  </div>
-
-                  {/* UEBA */}
-                  <div className="bg-gray-800/50 p-6 rounded-lg border border-gray-600/30">
-                    <div className="flex items-center gap-3 mb-4">
-                      <BarChart3 className="w-6 h-6 text-indigo-400" />
-                      <Sparkles className="w-4 h-4 text-yellow-400" />
-                      <h3 className="text-xl font-bold text-indigo-400">
-                        <Tooltip text="UEBA (사용자 행위 분석)" tooltip="User and Entity Behavior Analytics. 사용자와 엔티티의 행동 패턴을 AI로 분석하여 비정상적인 활동을 자동으로 탐지하는 기술입니다." className="text-indigo-400" />
-                      </h3>
-                    </div>
-                    <p className="text-green-200 mb-3">
-                      <strong>역할:</strong> AI가 사용자의 평소 행동 패턴을 학습하여, 비정상적인 활동을 자동으로 탐지하고 위험도를 평가합니다.
-                    </p>
-                    <p className="text-green-200 text-sm">
-                      <strong>사용법:</strong> "dkim 계정이 최근 24시간 동안 접속한 외부 사이트와 업로드한 파일 용량 알려줘"와 같은 자연어 질문으로 사용자 행위를 분석합니다.
-                    </p>
-                  </div>
-
-                  {/* AI 연동 티켓 관리 시스템 */}
-                  <div className="bg-gray-800/50 p-6 rounded-lg border border-gray-600/30">
-                    <div className="flex items-center gap-3 mb-4">
-                      <FileText className="w-6 h-6 text-green-400" />
-                      <Sparkles className="w-4 h-4 text-yellow-400" />
-                      <h3 className="text-xl font-bold text-green-400">
-                        <Tooltip text="티켓 관리 시스템 (AI 연동)" tooltip="분석이 진행됨에 따라, AI가 티켓의 주요 항목(사고 개요, 조치 사항 등)을 자동으로 채워주거나 요약 보고서를 초안으로 작성해주는 AI 연동 티켓 시스템입니다." className="text-green-400" />
-                      </h3>
-                    </div>
-                    <p className="text-green-200 mb-3">
-                      <strong>역할:</strong> 분석이 진행됨에 따라, AI가 티켓의 주요 항목(사고 개요, 조치 사항 등)을 자동으로 채워주거나 요약 보고서를 초안으로 작성해줍니다.
-                    </p>
-                    <p className="text-green-200 text-sm">
-                      <strong>사용법:</strong> 분석가는 AI가 작성한 내용을 검토하고 수정하는 것만으로도 신속하게 기록 및 보고 업무를 완료할 수 있습니다.
+                  <div className="text-center py-12">
+                    <div className="text-6xl mb-6">🚧</div>
+                    <h3 className="text-2xl font-bold text-yellow-400 mb-4">시나리오 준비 중</h3>
+                    <p className="text-green-300 text-lg">
+                      AI 기반 차세대 SOC 시나리오가 곧 추가될 예정입니다.
                     </p>
                   </div>
                 </div>
