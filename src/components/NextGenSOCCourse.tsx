@@ -41,69 +41,8 @@ const NextGenSOCCourse = () => {
     navigate(`/scenario/${scenarioId}`);
   };
 
-  // B코스용 시나리오 데이터
-  const nextGenScenarios = [
-    {
-      id: 1,
-      title: "랜섬웨어 감염",
-      priority: "P1",
-      role: "현장 조치 담당자"
-    },
-    {
-      id: 2,
-      title: "내부 정보 유출 의심",
-      priority: "P2",
-      role: "커뮤니케이터"
-    },
-    {
-      id: 3,
-      title: "SQL 인젝션 및 데이터 유출",
-      priority: "P1",
-      role: "분석 및 검색 담당자"
-    },
-    {
-      id: 4,
-      title: "스피어 피싱 및 계정 탈취",
-      priority: "P2",
-      role: "분석 및 검색 담당자"
-    },
-    {
-      id: 5,
-      title: "워터링 홀 공격",
-      priority: "P2",
-      role: "분석 및 검색 담당자"
-    },
-    {
-      id: 6,
-      title: "무차별 대입 공격 (Brute Force)",
-      priority: "P3",
-      role: "분석 및 검색 담당자"
-    },
-    {
-      id: 7,
-      title: "분산 서비스 거부(DDoS) 공격",
-      priority: "P1",
-      role: "커뮤니케이터"
-    },
-    {
-      id: 8,
-      title: "소스코드 유출을 통한 클라우드 계정 탈취",
-      priority: "P1",
-      role: "분석 및 검색 담당자"
-    },
-    {
-      id: 9,
-      title: "오탐(False Positive) 처리",
-      priority: "P2",
-      role: "커뮤니케이터"
-    },
-    {
-      id: 10,
-      title: "공급망 공격 (Supply Chain Attack)",
-      priority: "P1",
-      role: "현장 조치 담당자"
-    }
-  ];
+  // B코스용 시나리오 데이터 (빈 배열)
+  const nextGenScenarios: any[] = [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white relative overflow-hidden">
@@ -303,44 +242,13 @@ const NextGenSOCCourse = () => {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {nextGenScenarios.map((scenario) => (
-                    <div key={scenario.id} className="bg-gray-800/50 p-6 rounded-lg border border-gray-600/30 hover:border-green-500/50 transition-all duration-300">
-                      {/* 시나리오 헤더 */}
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <h3 className="text-xl font-bold text-yellow-400 mb-2">
-                            시나리오 {scenario.id}: {scenario.title}
-                          </h3>
-                          <div className="flex items-center gap-3 mb-2">
-                            <span className={`px-3 py-1 rounded-lg border text-sm font-bold ${getPriorityColor(scenario.priority)}`}>
-                              {scenario.priority} {scenario.priority === 'P1' ? '긴급' : scenario.priority === 'P2' ? '높음' : '중간'}
-                            </span>
-                            <span className="text-cyan-400 text-sm">
-                              역할: {scenario.role}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-green-400" />
-                          <span className="text-green-400 text-sm">10분</span>
-                          <Sparkles className="w-4 h-4 text-yellow-400" />
-                        </div>
-                      </div>
-
-                      {/* 시작 버튼 */}
-                      <button
-                        onClick={() => handleScenarioStart(scenario.id)}
-                        className="w-full mt-4 px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 
-                                 border-2 border-green-400 rounded-lg text-white font-bold
-                                 hover:from-green-500 hover:to-green-600 hover:border-green-300
-                                 transition-all duration-300 flex items-center justify-center gap-2"
-                      >
-                        <Play className="w-5 h-5" />
-                        <Sparkles className="w-4 h-4" />
-                        AI 모의훈련 {scenario.id} 시작
-                      </button>
-                    </div>
-                  ))}
+                  <div className="lg:col-span-2 text-center py-12">
+                    <div className="text-6xl mb-4">🚧</div>
+                    <h3 className="text-2xl font-bold text-yellow-400 mb-4">시나리오 준비 중</h3>
+                    <p className="text-green-200 text-lg">
+                      AI 기반 차세대 SOC 시나리오가 곧 추가될 예정입니다.
+                    </p>
+                  </div>
                 </div>
               </div>
             )}
