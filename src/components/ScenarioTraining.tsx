@@ -18,7 +18,7 @@ import {
   Unplug,
   ChevronDown,
   ChevronUp,
-  Info
+  Info,
   Bell,
   Activity,
   Search,
