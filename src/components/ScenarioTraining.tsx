@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { TrainingStep, StepResult, ChatMessage } from '../types/training';
+import { scenarioTrainingData } from '../data/trainingSteps';
 import { 
   Home, 
   ArrowLeft, 
@@ -40,16 +42,22 @@ const ScenarioTraining = () => {
   const { scenarioId } = useParams<{ scenarioId: string }>();
   const navigate = useNavigate();
   const [scenario, setScenario] = useState<Scenario | null>(null);
+  const [trainingSteps, setTrainingSteps] = useState<TrainingStep[]>([]);
   const [courseType, setCourseType] = useState<'traditional' | 'nextgen' | null>(null);
   const [isStarted, setIsStarted] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const [timeUp, setTimeUp] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+  const [stepResults, setStepResults] = useState<{[key: number]: StepResult}>({});
+  const [isStepCompleted, setIsStepCompleted] = useState(false);
   const [alertAcknowledged, setAlertAcknowledged] = useState(false);
   const [selectedTool, setSelectedTool] = useState<'siem' | 'edr' | 'soar' | 'tip' | null>(null);
-  const [chatMessages, setChatMessages] = useState<Array<{id: number, sender: string, message: string, timestamp: string}>>([]);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [isAlertSounding, setIsAlertSounding] = useState(false);
   const [playbookExecuted, setPlaybookExecuted] = useState(false);
+  const [currentStepData, setCurrentStepData] = useState<any>(null);
+  const [progressPercentage, setProgressPercentage] = useState(0);
 
   useEffect(() => {
     if (scenarioId) {
@@ -60,6 +68,12 @@ const ScenarioTraining = () => {
       if (traditionalScenario) {
         setScenario(traditionalScenario);
         setCourseType('traditional');
+        
+        // 훈련 단계 데이터 로드
+        const trainingData = scenarioTrainingData[id];
+        if (trainingData) {
+          setTrainingSteps(trainingData.steps);
+        }
         return;
       }
       
@@ -103,21 +117,85 @@ const ScenarioTraining = () => {
     addChatMessage('시스템', `${scenario?.priority} 등급 경보 발생! 즉시 대응 필요`);
   };
 
-  const addChatMessage = (sender: string, message: string) => {
+  const addChatMessage = (sender: string, message: string, type: 'info' | 'success' | 'warning' | 'error' = 'info') => {
     const newMessage = {
       id: Date.now(),
       sender,
       message,
-      timestamp: new Date().toLocaleTimeString()
+      timestamp: new Date().toLocaleTimeString(),
+      type
     };
     setChatMessages(prev => [...prev, newMessage]);
+  };
+
+  // 단계 완료 처리
+  const completeStep = (stepId: number, data?: any) => {
+    const step = trainingSteps.find(s => s.id === stepId);
+    if (!step) return;
+
+    const result: StepResult = {
+      stepId,
+      status: 'success',
+      data: data || step.data,
+      timestamp: new Date().toISOString(),
+      score: 100
+    };
+
+    setStepResults(prev => ({ ...prev, [stepId]: result }));
+    setCompletedSteps(prev => [...prev, stepId]);
+    setIsStepCompleted(true);
+    
+    // 성공 메시지 표시
+    addChatMessage('시스템', step.feedback.success, 'success');
+    
+    // 진행도 업데이트
+    const newProgress = ((stepId) / trainingSteps.length) * 100;
+    setProgressPercentage(newProgress);
+    
+    // 다음 단계로 이동 (2초 후)
+    setTimeout(() => {
+      if (stepId < trainingSteps.length) {
+        setCurrentStep(stepId);
+        setIsStepCompleted(false);
+        setCurrentStepData(null);
+        
+        const nextStep = trainingSteps.find(s => s.id === stepId + 1);
+        if (nextStep) {
+          addChatMessage('상황실장', `${nextStep.title} 단계를 진행하세요`, 'info');
+        }
+      } else {
+        // 모든 단계 완료
+        setIsCompleted(true);
+        addChatMessage('상황실장', '모든 단계 완료! 훌륭한 대응이었습니다.', 'success');
+      }
+    }, 2000);
+  };
+
+  // 도구별 액션 처리
+  const handleToolAction = (tool: string, action: string, data?: any) => {
+    const currentStepInfo = trainingSteps[currentStep];
+    if (!currentStepInfo) return;
+
+    if (currentStepInfo.tool === tool && currentStepInfo.action === action) {
+      setCurrentStepData(data || currentStepInfo.data);
+      completeStep(currentStepInfo.id, data);
+    } else {
+      addChatMessage('시스템', currentStepInfo.feedback.failure, 'error');
+    }
+  };
+
+  // 현재 단계 정보 가져오기
+  const getCurrentStepInfo = () => {
+    return trainingSteps[currentStep] || null;
   };
 
   const handleAlertAcknowledge = () => {
     setAlertAcknowledged(true);
     setIsAlertSounding(false);
-    addChatMessage('상황실장', '경보 인지 확인. 분석을 시작하세요.');
-    setCurrentStep(1);
+    
+    if (trainingSteps.length > 0) {
+      handleToolAction('edr', 'click', trainingSteps[0].data);
+    }
   };
 
   const handleToolSelect = (tool: 'siem' | 'edr' | 'soar' | 'tip') => {
@@ -128,23 +206,57 @@ const ScenarioTraining = () => {
       soar: 'SOAR',
       tip: 'TIP'
     };
-    addChatMessage('분석가', `${toolNames[tool]} 도구를 선택했습니다.`);
+    
+    const currentStepInfo = getCurrentStepInfo();
+    if (currentStepInfo && currentStepInfo.tool === tool) {
+      addChatMessage('분석가', `${toolNames[tool]} 도구를 선택했습니다.`, 'info');
+      
+      // 도구별 자동 액션 실행
+      if (tool === 'siem' && currentStepInfo.action === 'query') {
+        setTimeout(() => {
+          handleToolAction('siem', 'query', currentStepInfo.data);
+        }, 1000);
+      } else if (tool === 'tip' && currentStepInfo.action === 'input') {
+        setTimeout(() => {
+          handleToolAction('tip', 'input', currentStepInfo.data);
+        }, 1000);
+      }
+    }
   };
 
   const handlePlaybookExecution = () => {
-    setPlaybookExecuted(true);
-    addChatMessage('상황실장', '플레이북 실행 확인. 유관부서에 전파 완료.');
-    addChatMessage('네트워크팀', '격리 조치 완료했습니다.');
-    setTimeout(() => {
-      addChatMessage('보안팀장', '초동대응 완료. 수고하셨습니다.');
-    }, 2000);
+    const currentStepInfo = getCurrentStepInfo();
+    if (currentStepInfo && currentStepInfo.tool === 'soar') {
+      handleToolAction('soar', 'select', currentStepInfo.data);
+      setPlaybookExecuted(true);
+      
+      // 팀 협업 메시지들
+      setTimeout(() => {
+        addChatMessage('네트워크팀', '격리 조치 완료했습니다.', 'success');
+      }, 1000);
+      
+      setTimeout(() => {
+        addChatMessage('보안팀장', '플레이북 실행 확인됨. 다음 단계를 진행하세요.', 'info');
+      }, 2000);
+    }
   };
 
-  const getStepInstructions = () => {
-    if (!scenario) return '';
-    const steps = scenario.flow.split(' → ');
-    return steps[currentStep] || '모든 단계 완료';
+  // 물리적 액션 처리
+  const handlePhysicalAction = (actionType: string) => {
+    const currentStepInfo = getCurrentStepInfo();
+    if (currentStepInfo && currentStepInfo.tool === 'physical') {
+      handleToolAction('physical', 'confirm', { actionType, ...currentStepInfo.data });
+    }
   };
+
+  // 커뮤니케이션 액션 처리
+  const handleCommunicationAction = (actionType: string) => {
+    const currentStepInfo = getCurrentStepInfo();
+    if (currentStepInfo && currentStepInfo.tool === 'communication') {
+      handleToolAction('communication', 'confirm', { actionType, ...currentStepInfo.data });
+    }
+  };
+
   const handleCompleteTraining = () => {
     setIsCompleted(true);
   };
@@ -374,6 +486,23 @@ const ScenarioTraining = () => {
                 <h3 className="text-lg font-bold text-red-400">실시간 경보 피드</h3>
               </div>
               
+              {/* 진행도 표시 */}
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-green-400">진행도</span>
+                  <span className="text-sm text-green-400">{Math.round(progressPercentage)}%</span>
+                </div>
+                <div className="w-full bg-gray-800 rounded-full h-2">
+                  <div 
+                    className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all duration-500"
+                    style={{ width: `${progressPercentage}%` }}
+                  ></div>
+                </div>
+                <div className="text-xs text-gray-400 mt-1">
+                  {completedSteps.length} / {trainingSteps.length} 단계 완료
+                </div>
+              </div>
+              
               {/* 경보 목록 */}
               <div className="space-y-2">
                 <div 
@@ -407,16 +536,41 @@ const ScenarioTraining = () => {
                 </div>
               </div>
 
-              {/* 현재 단계 표시 */}
-              {alertAcknowledged && (
+              {/* 현재 단계 및 완료된 단계들 표시 */}
+              {alertAcknowledged && trainingSteps.length > 0 && (
                 <div className="mt-6 p-3 bg-blue-900/30 border border-blue-500/30 rounded-lg">
                   <h4 className="text-blue-400 font-bold mb-2 flex items-center gap-2">
                     <Activity className="w-4 h-4" />
-                    현재 단계
+                    현재 단계 ({currentStep + 1}/{trainingSteps.length})
                   </h4>
-                  <p className="text-sm text-green-200">
-                    {getStepInstructions()}
-                  </p>
+                  {trainingSteps[currentStep] && (
+                    <div>
+                      <p className="text-sm font-semibold text-yellow-300 mb-1">
+                        {trainingSteps[currentStep].title}
+                      </p>
+                      <p className="text-xs text-green-200">
+                        {trainingSteps[currentStep].description}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {/* 완료된 단계들 */}
+              {completedSteps.length > 0 && (
+                <div className="mt-4 p-3 bg-green-900/20 border border-green-500/30 rounded-lg">
+                  <h4 className="text-green-400 font-bold mb-2 text-sm">완료된 단계</h4>
+                  <div className="space-y-1">
+                    {completedSteps.map(stepId => {
+                      const step = trainingSteps.find(s => s.id === stepId);
+                      return step ? (
+                        <div key={stepId} className="flex items-center gap-2 text-xs">
+                          <CheckCircle className="w-3 h-3 text-green-400" />
+                          <span className="text-green-300">{step.title}</span>
+                        </div>
+                      ) : null;
+                    })}
+                  </div>
                 </div>
               )}
             </div>
