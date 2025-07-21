@@ -18,7 +18,7 @@ import {
   Play
 } from 'lucide-react';
 import { Tooltip } from './Tooltip';
-import { scenarios } from '../data/scenarios';
+import { traditionalScenarios } from '../data/traditionalScenarios';
 
 const TraditionalSOCCourse = () => {
   const navigate = useNavigate();
@@ -216,7 +216,7 @@ const TraditionalSOCCourse = () => {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {scenarios.map((scenario) => (
+                  {traditionalScenarios.map((scenario) => (
                     <div key={scenario.id} className="bg-gray-800/50 p-6 rounded-lg border border-gray-600/30 hover:border-blue-500/50 transition-all duration-300">
                       {/* 시나리오 헤더 */}
                       <div className="flex items-start justify-between mb-4">
