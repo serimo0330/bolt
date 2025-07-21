@@ -169,11 +169,8 @@ const NextGenSOCCourse = () => {
                     <p className="text-green-200 mb-3">
                       <strong>역할:</strong> AI가 현재 사고의 맥락을 분석하여, 가장 적합한 플레이북을 자동으로 추천해주거나, 기존 플레이북에 새로운 대응 단계를 동적으로 추가할 것을 제안합니다.
                     </p>
-                  <div className="text-center py-12">
-                    <div className="text-6xl mb-6">🚧</div>
-                    <h3 className="text-2xl font-bold text-yellow-400 mb-4">시나리오 준비 중</h3>
-                    <p className="text-green-300 text-lg">
-                      AI 기반 차세대 SOC 시나리오가 곧 추가될 예정입니다.
+                    <p className="text-green-200 text-sm">
+                      <strong>사용법:</strong> 분석가는 AI가 제안한 플레이북을 검토하고, 상황에 맞게 수정하여 실행합니다.
                     </p>
                   </div>
                 </div>
@@ -208,43 +205,12 @@ const NextGenSOCCourse = () => {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {nextGenScenarios.map((scenario) => (
-                    <div key={scenario.id} className="bg-gray-800/50 p-6 rounded-lg border border-gray-600/30 hover:border-green-500/50 transition-all duration-300">
-                      {/* 시나리오 헤더 */}
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <h3 className="text-xl font-bold text-yellow-400 mb-2">
-                            시나리오 {scenario.id}: {scenario.title}
-                          </h3>
-                          <div className="flex items-center gap-3 mb-2">
-                            <span className={`px-3 py-1 rounded-lg border text-sm font-bold ${getPriorityColor(scenario.priority)}`}>
-                              {scenario.priority} {scenario.priority === 'P1' ? '긴급' : scenario.priority === 'P2' ? '높음' : '중간'}
-                            </span>
-                            <span className="text-cyan-400 text-sm">
-                              역할: {scenario.role}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-green-400" />
-                          <span className="text-green-400 text-sm">10분</span>
-                        </div>
-                      </div>
-
-                      {/* 시작 버튼 */}
-                      <button
-                        onClick={() => handleScenarioStart(scenario.id)}
-                        className="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 
-                                 border-2 border-green-400 rounded-lg text-white font-bold
-                                 hover:from-green-500 hover:to-green-600 hover:border-green-300
-                                 transition-all duration-300 flex items-center justify-center gap-2"
-                      >
-                        <Play className="w-5 h-5" />
-                        AI 모의훈련 {scenario.id} 시작
-                      </button>
-                    </div>
-                  ))}
+                <div className="text-center py-12">
+                  <div className="text-6xl mb-6">🚧</div>
+                  <h3 className="text-2xl font-bold text-yellow-400 mb-4">시나리오 준비 중</h3>
+                  <p className="text-green-300 text-lg">
+                    AI 기반 차세대 SOC 시나리오가 곧 추가될 예정입니다.
+                  </p>
                 </div>
               </div>
             )}
