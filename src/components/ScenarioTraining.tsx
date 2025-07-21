@@ -416,7 +416,6 @@ const ScenarioTraining = () => {
             {/* 사이렌 효과 */}
             {isAlertSounding && (
               <div className="fixed inset-0 bg-red-500/20 animate-pulse z-40 pointer-events-none">
-                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-6 py-3 rounded-lg font-bold text-xl animate-bounce">
                 <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-6 py-3 rounded-lg font-bold text-xl animate-bounce cursor-pointer"
                      onClick={handleAlertAcknowledge}>
                   🚨 P1 긴급 경보 발생! 클릭하여 인지하세요 🚨
@@ -610,7 +609,6 @@ const ScenarioTraining = () => {
                       </div>
                     </button>
                   )}
-                  </div>
                 </div>
               </div>
             )}
