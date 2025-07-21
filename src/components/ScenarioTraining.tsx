@@ -1161,6 +1161,70 @@ const ScenarioTraining = () => {
   };
 
   if (!scenario) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white relative overflow-hidden">
+        <div className="container mx-auto px-4 py-8 relative z-10">
+          {/* 네비게이션 */}
+          <div className="mb-6">
+            <div className="flex gap-4">
+              <button
+                onClick={() => navigate('/')}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg
+                         hover:bg-gray-600 transition-all duration-300"
+              >
+                <Home className="w-4 h-4" />
+                홈으로 가기
+              </button>
+              <button
+                onClick={() => navigate('/courses')}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg
+                         hover:bg-gray-700 transition-all duration-300"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                코스 선택으로 돌아가기
+              </button>
+            </div>
+          </div>
+          
+          <div className="text-center">
+            <h1 className="text-4xl font-bold text-red-400 mb-4">시나리오를 찾을 수 없습니다</h1>
+            <p className="text-green-200 text-lg">요청하신 시나리오가 존재하지 않습니다.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white relative overflow-hidden">
+      <div className="container mx-auto px-4 py-8 relative z-10">
+        {/* 네비게이션 */}
+        <div className="mb-6">
+          <div className="flex gap-4">
+            <button
+              onClick={() => navigate('/')}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg
+                       hover:bg-gray-600 transition-all duration-300"
+            >
+              <Home className="w-4 h-4" />
+              홈으로 가기
+            </button>
+            <button
+              onClick={() => navigate('/courses')}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg
+                       hover:bg-gray-700 transition-all duration-300"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              코스 선택으로 돌아가기
+            </button>
+          </div>
+        </div>
+
+        {/* 타이머 */}
+        {isStarted && !isCompleted && !timeUp && (
+          <Timer initialMinutes={10} onTimeUp={handleTimeUp} />
+        )}
+
         <div className="bg-black/50 backdrop-blur-sm border border-yellow-500/30 rounded-lg p-6 mb-8">
           {/* 시나리오 제목 (클릭 가능) */}
           <button
@@ -1463,6 +1527,7 @@ const ScenarioTraining = () => {
         <div className="mt-12 text-center text-green-600 text-sm">
           <p>© 2025 corebyte.labs. All content rights reserved.</p>
         </div>
+      </div>
 
         {/* Background Effects */}
         <div className="fixed inset-0 pointer-events-none">
@@ -1472,6 +1537,7 @@ const ScenarioTraining = () => {
           <div className="absolute top-3/4 left-1/5 w-1 h-1 bg-cyan-400 rounded-full animate-pulse opacity-25"></div>
           <div className="absolute top-1/6 right-1/4 w-1.5 h-1.5 bg-purple-400 rounded-full animate-ping opacity-20"></div>
         </div>
+    </div>
   );
 };
 
