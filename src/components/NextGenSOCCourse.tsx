@@ -205,12 +205,67 @@ const NextGenSOCCourse = () => {
                   </p>
                 </div>
 
-                <div className="text-center py-12">
-                  <div className="text-6xl mb-6">🚧</div>
-                  <h3 className="text-2xl font-bold text-yellow-400 mb-4">시나리오 준비 중</h3>
-                  <p className="text-green-300 text-lg">
-                    AI 기반 차세대 SOC 시나리오가 곧 추가될 예정입니다.
-                  </p>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {nextGenScenarios.map((scenario) => (
+                    <div key={scenario.id} className="bg-gray-800/50 p-6 rounded-lg border border-gray-600/30 hover:border-green-500/50 transition-all duration-300">
+                      {/* 시나리오 헤더 */}
+                      <div className="flex items-start justify-between mb-4">
+                        <div>
+                          <h3 className="text-xl font-bold text-yellow-400 mb-2">
+                            시나리오 {scenario.id}: {scenario.title}
+                          </h3>
+                          <div className="flex items-center gap-3 mb-2">
+                            <span className={`px-3 py-1 rounded-lg border text-sm font-bold ${getPriorityColor(scenario.priority)}`}>
+                              {scenario.priority} {scenario.priority === 'P1' ? '긴급' : scenario.priority === 'P2' ? '높음' : '중간'}
+                            </span>
+                            <span className="text-cyan-400 text-sm">
+                              역할: {scenario.role}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-green-400" />
+                          <span className="text-green-400 text-sm">10분</span>
+                        </div>
+                      </div>
+
+                      {/* 상황 정보 */}
+                      <div className="mb-4">
+                        <h4 className="text-green-400 font-bold mb-2">상황 정보:</h4>
+                        <p className="text-green-200 text-sm leading-relaxed">
+                          {scenario.situation}
+                        </p>
+                      </div>
+
+                      {/* 대응 흐름 */}
+                      <div className="mb-4">
+                        <h4 className="text-blue-400 font-bold mb-2">AI 기반 대응 흐름:</h4>
+                        <p className="text-green-200 text-sm leading-relaxed">
+                          {scenario.flow}
+                        </p>
+                      </div>
+
+                      {/* 대응 결과 */}
+                      <div className="mb-6">
+                        <h4 className="text-purple-400 font-bold mb-2">대응 결과:</h4>
+                        <p className="text-green-200 text-sm leading-relaxed">
+                          {scenario.result}
+                        </p>
+                      </div>
+
+                      {/* 시작 버튼 */}
+                      <button
+                        onClick={() => handleScenarioStart(scenario.id)}
+                        className="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 
+                                 border-2 border-green-400 rounded-lg text-white font-bold
+                                 hover:from-green-500 hover:to-green-600 hover:border-green-300
+                                 transition-all duration-300 flex items-center justify-center gap-2"
+                      >
+                        <Play className="w-5 h-5" />
+                        AI 모의훈련 {scenario.id} 시작
+                      </button>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
