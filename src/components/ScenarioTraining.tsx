@@ -618,57 +618,89 @@ const ScenarioTraining = () => {
                 {selectedTool === 'siem' && (
                   <div>
                     <h4 className="text-cyan-400 font-bold mb-3">SIEM 로그 분석</h4>
-                    <div className="font-mono text-sm space-y-2">
-                      <div className="text-green-300">$ query: source="firewall" | search "{scenario?.analysis?.who}"</div>
-                      <div className="text-gray-300">검색 결과: 47건의 로그 발견</div>
-                      <div className="text-yellow-300">
-                        [2024-01-15 14:23:17] ALERT: Suspicious activity from {scenario?.analysis?.who}
+                    {currentStepData && currentStepData.query ? (
+                      <div className="font-mono text-sm space-y-2">
+                        <div className="text-green-300">$ {currentStepData.query}</div>
+                        <div className="text-gray-300">검색 결과: 로그 분석 중...</div>
+                        <div className="text-yellow-300">
+                          결과: {currentStepData.result}
+                        </div>
+                        {currentStepData.sourceIP && (
+                          <div className="text-red-300">
+                            공격자 IP: {currentStepData.sourceIP}
+                          </div>
+                        )}
                       </div>
-                      <div className="text-red-300">
-                        [2024-01-15 14:23:18] BLOCK: Connection attempt to {scenario?.analysis?.where}
+                    ) : (
+                      <div className="text-center text-gray-400 mt-10">
+                        <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                        <p>쿼리를 실행하세요</p>
                       </div>
-                    </div>
+                    )}
                   </div>
                 )}
                 
                 {selectedTool === 'edr' && (
                   <div>
                     <h4 className="text-purple-400 font-bold mb-3">EDR 엔드포인트 분석</h4>
-                    <div className="space-y-3">
-                      <div className="bg-gray-700 p-3 rounded">
-                        <div className="text-yellow-300 font-semibold">프로세스 트리</div>
-                        <div className="text-sm text-gray-300 mt-1">
-                          └ explorer.exe (PID: 1234)<br/>
-                          &nbsp;&nbsp;└ malware.exe (PID: 5678) ⚠️
-                        </div>
+                    {currentStepData ? (
+                      <div className="space-y-3">
+                        {currentStepData.processName && (
+                          <div className="bg-gray-700 p-3 rounded">
+                            <div className="text-yellow-300 font-semibold">탐지된 프로세스</div>
+                            <div className="text-sm text-red-300 mt-1">
+                              {currentStepData.processName} ⚠️ 악성 프로세스
+                            </div>
+                          </div>
+                        )}
+                        {currentStepData.alertDetails && (
+                          <div className="bg-gray-700 p-3 rounded">
+                            <div className="text-yellow-300 font-semibold">경보 상세</div>
+                            <div className="text-sm text-gray-300 mt-1">
+                              {currentStepData.alertDetails}
+                            </div>
+                            <div className="text-xs text-gray-400 mt-1">
+                              시간: {currentStepData.timestamp}
+                            </div>
+                          </div>
+                        )}
                       </div>
-                      <div className="bg-gray-700 p-3 rounded">
-                        <div className="text-yellow-300 font-semibold">네트워크 연결</div>
-                        <div className="text-sm text-red-300 mt-1">
-                          악성 C2 서버 통신 탐지: {scenario?.analysis?.who}
-                        </div>
+                    ) : (
+                      <div className="text-center text-gray-400 mt-10">
+                        <Eye className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                        <p>엔드포인트 데이터를 분석하세요</p>
                       </div>
-                    </div>
+                    )}
                   </div>
                 )}
 
                 {selectedTool === 'tip' && (
                   <div>
                     <h4 className="text-yellow-400 font-bold mb-3">위협 인텔리전스 조회</h4>
-                    <div className="space-y-3">
-                      <div className="bg-gray-700 p-3 rounded">
-                        <div className="text-yellow-300 font-semibold">IP 평판 조회</div>
-                        <div className="text-sm text-red-300 mt-1">
-                          {scenario?.analysis?.who}: 악성 IP (APT 그룹 연관)
+                    {currentStepData && currentStepData.fileHash ? (
+                      <div className="space-y-3">
+                        <div className="bg-gray-700 p-3 rounded">
+                          <div className="text-yellow-300 font-semibold">파일 해시 조회</div>
+                          <div className="text-xs text-gray-300 mt-1 font-mono">
+                            {currentStepData.fileHash}
+                          </div>
+                        </div>
+                        <div className="bg-gray-700 p-3 rounded">
+                          <div className="text-yellow-300 font-semibold">위협 정보</div>
+                          <div className="text-sm text-red-300 mt-1">
+                            {currentStepData.malwareFamily}
+                          </div>
+                          <div className="text-xs text-gray-400 mt-1">
+                            위험도: {currentStepData.threatLevel} | 최초 발견: {currentStepData.firstSeen}
+                          </div>
                         </div>
                       </div>
-                      <div className="bg-gray-700 p-3 rounded">
-                        <div className="text-yellow-300 font-semibold">공격 유형</div>
-                        <div className="text-sm text-gray-300 mt-1">
-                          {scenario?.analysis?.what}
-                        </div>
+                    ) : (
+                      <div className="text-center text-gray-400 mt-10">
+                        <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                        <p>해시값을 조회하세요</p>
                       </div>
-                    </div>
+                    )}
                   </div>
                 )}
 
@@ -676,9 +708,47 @@ const ScenarioTraining = () => {
                   <div className="text-center text-gray-400 mt-20">
                     <Settings className="w-12 h-12 mx-auto mb-4 opacity-50" />
                     <p>분석 도구를 선택하세요</p>
+                    {trainingSteps[currentStep] && (
+                      <p className="text-sm mt-2 text-yellow-300">
+                        권장 도구: {trainingSteps[currentStep].tool.toUpperCase()}
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
+              
+              {/* 물리적 액션 버튼들 */}
+              {alertAcknowledged && trainingSteps[currentStep]?.tool === 'physical' && (
+                <div className="mt-4 space-y-2">
+                  <h4 className="text-orange-400 font-bold text-sm">물리적 조치</h4>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => handlePhysicalAction('preserve_evidence')}
+                      className="px-3 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors"
+                    >
+                      증거 보존
+                    </button>
+                    <button
+                      onClick={() => handlePhysicalAction('network_isolate')}
+                      className="px-3 py-2 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors"
+                    >
+                      네트워크 격리
+                    </button>
+                    <button
+                      onClick={() => handlePhysicalAction('memory_dump')}
+                      className="px-3 py-2 bg-purple-600 text-white rounded text-sm hover:bg-purple-700 transition-colors"
+                    >
+                      메모리 덤프
+                    </button>
+                    <button
+                      onClick={() => handlePhysicalAction('confirm_action')}
+                      className="px-3 py-2 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors"
+                    >
+                      조치 확인
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* 오른쪽 패널: 대응 플레이북 및 채팅 */}
@@ -690,25 +760,50 @@ const ScenarioTraining = () => {
                   <h3 className="text-lg font-bold text-orange-400">대응 플레이북</h3>
                 </div>
                 
-                {alertAcknowledged && (
+                {alertAcknowledged && trainingSteps[currentStep]?.tool === 'soar' && (
                   <div className="space-y-2">
                     <div className="bg-orange-900/30 border border-orange-500/30 rounded-lg p-3">
                       <div className="text-orange-300 font-semibold mb-2">
                         추천 플레이북
                       </div>
                       <div className="text-sm text-gray-300 mb-3">
-                        {scenario?.title} 대응 플레이북
+                        {trainingSteps[currentStep]?.data?.playbookName || `${scenario?.title} 대응 플레이북`}
                       </div>
                       <button
                         onClick={handlePlaybookExecution}
-                        disabled={playbookExecuted}
+                        disabled={isStepCompleted}
                         className={`w-full px-3 py-2 rounded text-sm font-bold transition-all duration-300 ${
-                          playbookExecuted
+                          isStepCompleted
                             ? 'bg-green-600 text-white cursor-not-allowed'
                             : 'bg-orange-600 text-white hover:bg-orange-700'
                         }`}
                       >
-                        {playbookExecuted ? '✓ 실행 완료' : '플레이북 실행'}
+                        {isStepCompleted ? '✓ 실행 완료' : '플레이북 실행'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+                
+                {/* 커뮤니케이션 액션 */}
+                {alertAcknowledged && trainingSteps[currentStep]?.tool === 'communication' && (
+                  <div className="space-y-2">
+                    <div className="bg-blue-900/30 border border-blue-500/30 rounded-lg p-3">
+                      <div className="text-blue-300 font-semibold mb-2">
+                        커뮤니케이션 액션
+                      </div>
+                      <div className="text-sm text-gray-300 mb-3">
+                        {trainingSteps[currentStep]?.description}
+                      </div>
+                      <button
+                        onClick={() => handleCommunicationAction('report')}
+                        disabled={isStepCompleted}
+                        className={`w-full px-3 py-2 rounded text-sm font-bold transition-all duration-300 ${
+                          isStepCompleted
+                            ? 'bg-green-600 text-white cursor-not-allowed'
+                            : 'bg-blue-600 text-white hover:bg-blue-700'
+                        }`}
+                      >
+                        {isStepCompleted ? '✓ 완료' : '보고/협조 요청'}
                       </button>
                     </div>
                   </div>
@@ -733,8 +828,15 @@ const ScenarioTraining = () => {
                         <span className="text-xs text-gray-500">
                           {msg.timestamp}
                         </span>
+                        {msg.type === 'success' && <CheckCircle className="w-3 h-3 text-green-400" />}
+                        {msg.type === 'error' && <XCircle className="w-3 h-3 text-red-400" />}
                       </div>
-                      <div className="text-sm text-gray-200 ml-5">
+                      <div className={`text-sm ml-5 ${
+                        msg.type === 'success' ? 'text-green-200' :
+                        msg.type === 'error' ? 'text-red-200' :
+                        msg.type === 'warning' ? 'text-yellow-200' :
+                        'text-gray-200'
+                      }`}>
                         {msg.message}
                       </div>
                     </div>
@@ -742,8 +844,21 @@ const ScenarioTraining = () => {
                 </div>
               </div>
 
-              {/* 완료 버튼 */}
-              {playbookExecuted && (
+              {/* 단계 완료 표시 */}
+              {isStepCompleted && (
+                <div className="mt-4 p-3 bg-green-900/30 border border-green-500/30 rounded-lg">
+                  <div className="flex items-center gap-2 text-green-400">
+                    <CheckCircle className="w-5 h-5" />
+                    <span className="font-bold">단계 완료!</span>
+                  </div>
+                  <p className="text-sm text-green-200 mt-1">
+                    다음 단계로 자동 이동합니다...
+                  </p>
+                </div>
+              )}
+
+              {/* 최종 완료 버튼 */}
+              {currentStep >= trainingSteps.length && !isCompleted && (
                 <button
                   onClick={handleCompleteTraining}
                   className="w-full mt-4 px-4 py-3 bg-green-600 text-white rounded-lg font-bold
