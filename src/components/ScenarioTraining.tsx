@@ -15,7 +15,10 @@ import {
   Eye,
   Zap,
   MessageSquare,
-  Users,
+  Unplug,
+  ChevronDown,
+  ChevronUp,
+  Info
   Bell,
   Activity,
   Search,
@@ -54,6 +57,7 @@ interface StepData {
 }
 
 const ScenarioTraining = () => {
+  const [showScenarioDetails, setShowScenarioDetails] = useState(false);
   const { scenarioId } = useParams<{ scenarioId: string }>();
   const navigate = useNavigate();
   const [scenario, setScenario] = useState<Scenario | null>(null);
@@ -1157,47 +1161,70 @@ const ScenarioTraining = () => {
   };
 
   if (!scenario) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-400 mx-auto mb-4"></div>
-          <p className="text-green-400 text-xl">시나리오 로딩 중...</p>
-        </div>
-      </div>
-    );
-  }
+        <div className="bg-black/50 backdrop-blur-sm border border-yellow-500/30 rounded-lg p-6 mb-8">
+          {/* 시나리오 제목 (클릭 가능) */}
+          <button
+            onClick={() => setShowScenarioDetails(!showScenarioDetails)}
+            className="w-full flex items-center justify-between text-left hover:bg-yellow-500/10 p-2 rounded transition-colors"
+          >
+            <div className="flex items-center gap-4">
+              <Info className="w-6 h-6 text-yellow-400" />
+              <h1 className="text-3xl font-bold text-yellow-400">
+                시나리오 {scenario.id}: {scenario.title}
+              </h1>
+            </div>
+            <div className="flex items-center gap-4">
+              <span className={`px-3 py-1 rounded-lg border text-sm font-bold ${getPriorityColor(scenario.priority)}`}>
+                {scenario.priority} {scenario.priority === 'P1' ? '긴급' : scenario.priority === 'P2' ? '높음' : '중간'}
+              </span>
+              <span className="text-cyan-400 text-sm">
+                역할: {scenario.role}
+              </span>
+              {showScenarioDetails ? (
+                <ChevronUp className="w-6 h-6 text-yellow-400" />
+              ) : (
+                <ChevronDown className="w-6 h-6 text-yellow-400" />
+              )}
+            </div>
+          </button>
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white relative overflow-hidden">
-      {/* 타이머 */}
-      {isStarted && !isCompleted && !timeUp && (
-        <Timer initialMinutes={10} onTimeUp={handleTimeUp} />
-      )}
+          {/* 시나리오 세부사항 (접기/펼치기) */}
+          {showScenarioDetails && (
+            <div className="mt-6 animate-fade-in">
+              {/* 상황 정보 */}
+              <div className="mb-6 p-4 bg-red-900/20 border border-red-500/30 rounded-lg">
+                <h3 className="text-red-400 font-bold text-lg mb-3 flex items-center gap-2">
+                  <Target className="w-5 h-5" />
+                  상황 정보
+                </h3>
+                <p className="text-green-200 leading-relaxed">
+                  {scenario.situation}
+                </p>
+              </div>
 
-      <div className="container mx-auto px-4 py-8 relative z-10">
-        {/* 네비게이션 */}
-        <div className="mb-6">
-          <div className="flex gap-4">
-            <button
-              onClick={() => navigate('/')}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg
-                       hover:bg-gray-600 transition-all duration-300"
-            >
-              <Home className="w-4 h-4" />
-              홈으로 가기
-            </button>
-            <button
-              onClick={handleReturnToCourse}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white transition-all duration-300 ${
-                courseType === 'traditional' 
-                  ? 'bg-blue-600 hover:bg-blue-700' 
-                  : 'bg-green-600 hover:bg-green-700'
-              }`}
-            >
-              <ArrowLeft className="w-4 h-4" />
-              {courseType === 'traditional' ? 'A코스로 돌아가기' : 'B코스로 돌아가기'}
-            </button>
-          </div>
+              {/* 대응 흐름 */}
+              <div className="mb-6 p-4 bg-blue-900/20 border border-blue-500/30 rounded-lg">
+                <h3 className="text-blue-400 font-bold text-lg mb-3 flex items-center gap-2">
+                  <Clock className="w-5 h-5" />
+                  대응 흐름
+                </h3>
+                <p className="text-green-200 text-sm leading-relaxed whitespace-pre-line">
+                  {scenario.flow}
+                </p>
+              </div>
+
+              {/* 대응 결과 */}
+              <div className="p-4 bg-purple-900/20 border border-purple-500/30 rounded-lg">
+                <h3 className="text-purple-400 font-bold text-lg mb-3 flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5" />
+                  대응 결과
+                </h3>
+                <p className="text-green-200 text-sm leading-relaxed">
+                  {scenario.result}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         {!isStarted ? (
