@@ -19,7 +19,6 @@ import {
   MessageSquare,
   BarChart3
 } from 'lucide-react';
-import { Tooltip } from './Tooltip';
 
 const NextGenSOCCourse = () => {
   const navigate = useNavigate();
