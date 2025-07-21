@@ -403,7 +403,15 @@ const ScenarioTraining = () => {
         {/* 단계별 콘텐츠 렌더링 */}
         {currentStep === 1 && (
           <div className="space-y-4">
-            {selectedItem && <div className="mb-4 p-3 bg-blue-900/30 border border-blue-500 rounded-lg text-blue-300">선택된 프로세스: <span className="font-bold text-white">{selectedItem}</span></div>}
+            {selectedItem && (
+              <div className="mb-4 p-3 bg-blue-900/30 border border-blue-500 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-blue-400" />
+                  <span className="text-blue-300">선택된 프로세스:</span>
+                  <span className="font-bold text-white">{selectedItem}</span>
+                </div>
+              </div>
+            )}
             <h4 className="text-purple-400 font-bold text-lg">탐지된 프로세스 목록</h4>
             <p className="text-gray-300 text-sm mb-4">각 프로세스의 정보를 분석하여 가장 위험한 프로세스를 선택하세요.</p>
             {stepData.content.alerts.map((alert: any) => (
@@ -411,14 +419,25 @@ const ScenarioTraining = () => {
                 key={alert.id}
                 onClick={() => handleStepAction(alert.process)}
                 className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-300 ${
-                  selectedItem === alert.process ? 'border-yellow-400 bg-yellow-900/30' : alert.risk === 'HIGH' 
+                  selectedItem === alert.process 
+                    ? 'border-yellow-400 bg-yellow-900/30 shadow-lg shadow-yellow-400/20 scale-105' 
+                    : alert.risk === 'HIGH' 
                     ? 'border-red-500 bg-red-900/20 hover:bg-red-800/30' 
                     : 'border-gray-500 bg-gray-800/20 hover:bg-gray-700/30'
                 }`}
               >
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center relative">
+                  {selectedItem === alert.process && (
+                    <div className="absolute -top-2 -right-2">
+                      <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
+                        <CheckCircle className="w-4 h-4 text-black" />
+                      </div>
+                    </div>
+                  )}
                   <div>
-                    <div className="font-bold text-white">{alert.process}</div>
+                    <div className={`font-bold ${selectedItem === alert.process ? 'text-yellow-200' : 'text-white'}`}>
+                      {alert.process}
+                    </div>
                     <div className="text-sm text-gray-400">{alert.description}</div>
                     <div className="text-sm text-gray-300">PC: {alert.pc}</div>
                   </div>
@@ -438,18 +457,37 @@ const ScenarioTraining = () => {
 
         {currentStep === 2 && (
           <div className="space-y-4">
-            {selectedItem && <div className="mb-4 p-3 bg-blue-900/30 border border-blue-500 rounded-lg text-blue-300">선택된 조치: <span className="font-bold text-white">{selectedItem}</span></div>}
+            {selectedItem && (
+              <div className="mb-4 p-3 bg-blue-900/30 border border-blue-500 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-blue-400" />
+                  <span className="text-blue-300">선택된 조치:</span>
+                  <span className="font-bold text-white">{selectedItem}</span>
+                </div>
+              </div>
+            )}
             <h4 className="text-red-400 font-bold text-lg">가능한 조치</h4>
             <p className="text-gray-300 text-sm mb-4">현재 상황에서 증거 보존을 위한 최적의 방법을 선택하세요.</p>
             {stepData.content.actions.map((action: any) => (
               <button
                 key={action.id}
                 onClick={() => handleStepAction(action.action)}
-                className={`w-full p-4 rounded-lg border-2 transition-all duration-300 text-left ${
-                  selectedItem === action.action ? 'border-yellow-400 bg-yellow-900/30' : 'border-red-500 bg-red-900/20'
+                className={`w-full p-4 rounded-lg border-2 transition-all duration-300 text-left relative ${
+                  selectedItem === action.action 
+                    ? 'border-yellow-400 bg-yellow-900/30 shadow-lg shadow-yellow-400/20 scale-105' 
+                    : 'border-red-500 bg-red-900/20'
                 } hover:bg-red-800/30`}
               >
-                <div className="font-bold text-white">{action.action}</div>
+                {selectedItem === action.action && (
+                  <div className="absolute -top-2 -right-2">
+                    <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
+                      <CheckCircle className="w-4 h-4 text-black" />
+                    </div>
+                  </div>
+                )}
+                <div className={`font-bold ${selectedItem === action.action ? 'text-yellow-200' : 'text-white'}`}>
+                  {action.action}
+                </div>
                 <div className="text-sm text-gray-300 mt-1">{action.description}</div>
               </button>
             ))}
@@ -458,18 +496,37 @@ const ScenarioTraining = () => {
 
         {currentStep === 3 && (
           <div className="space-y-4">
-            {selectedItem && <div className="mb-4 p-3 bg-blue-900/30 border border-blue-500 rounded-lg text-blue-300">선택된 방법: <span className="font-bold text-white">{selectedItem}</span></div>}
+            {selectedItem && (
+              <div className="mb-4 p-3 bg-blue-900/30 border border-blue-500 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-blue-400" />
+                  <span className="text-blue-300">선택된 방법:</span>
+                  <span className="font-bold text-white">{selectedItem}</span>
+                </div>
+              </div>
+            )}
             <h4 className="text-red-400 font-bold text-lg">격리 방법</h4>
             <p className="text-gray-300 text-sm mb-4">감염 확산을 방지하기 위한 가장 효과적인 방법을 선택하세요.</p>
             {stepData.content.actions.map((action: any) => (
               <button
                 key={action.id}
                 onClick={() => handleStepAction(action.action)}
-                className={`w-full p-4 rounded-lg border-2 transition-all duration-300 text-left ${
-                  selectedItem === action.action ? 'border-yellow-400 bg-yellow-900/30' : 'border-red-500 bg-red-900/20'
+                className={`w-full p-4 rounded-lg border-2 transition-all duration-300 text-left relative ${
+                  selectedItem === action.action 
+                    ? 'border-yellow-400 bg-yellow-900/30 shadow-lg shadow-yellow-400/20 scale-105' 
+                    : 'border-red-500 bg-red-900/20'
                 } hover:bg-red-800/30`}
               >
-                <div className="font-bold text-white">{action.action}</div>
+                {selectedItem === action.action && (
+                  <div className="absolute -top-2 -right-2">
+                    <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
+                      <CheckCircle className="w-4 h-4 text-black" />
+                    </div>
+                  </div>
+                )}
+                <div className={`font-bold ${selectedItem === action.action ? 'text-yellow-200' : 'text-white'}`}>
+                  {action.action}
+                </div>
                 <div className="text-sm text-gray-300 mt-1">{action.description}</div>
               </button>
             ))}
@@ -478,18 +535,37 @@ const ScenarioTraining = () => {
 
         {currentStep === 4 && (
           <div className="space-y-4">
-            {selectedItem && <div className="mb-4 p-3 bg-blue-900/30 border border-blue-500 rounded-lg text-blue-300">선택된 도구: <span className="font-bold text-white">{selectedItem}</span></div>}
+            {selectedItem && (
+              <div className="mb-4 p-3 bg-blue-900/30 border border-blue-500 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-blue-400" />
+                  <span className="text-blue-300">선택된 도구:</span>
+                  <span className="font-bold text-white">{selectedItem}</span>
+                </div>
+              </div>
+            )}
             <h4 className="text-green-400 font-bold text-lg">포렌식 도구 선택</h4>
             <p className="text-gray-300 text-sm mb-4">휘발성 증거 수집에 가장 적합한 도구를 선택하세요.</p>
             {stepData.content.tools.map((tool: any) => (
               <button
                 key={tool.id}
                 onClick={() => handleStepAction(tool.tool)}
-                className={`w-full p-4 rounded-lg border-2 transition-all duration-300 text-left ${
-                  selectedItem === tool.tool ? 'border-yellow-400 bg-yellow-900/30' : 'border-green-500 bg-green-900/20'
+                className={`w-full p-4 rounded-lg border-2 transition-all duration-300 text-left relative ${
+                  selectedItem === tool.tool 
+                    ? 'border-yellow-400 bg-yellow-900/30 shadow-lg shadow-yellow-400/20 scale-105' 
+                    : 'border-green-500 bg-green-900/20'
                 } hover:bg-green-800/30`}
               >
-                <div className="font-bold text-white">{tool.tool}</div>
+                {selectedItem === tool.tool && (
+                  <div className="absolute -top-2 -right-2">
+                    <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
+                      <CheckCircle className="w-4 h-4 text-black" />
+                    </div>
+                  </div>
+                )}
+                <div className={`font-bold ${selectedItem === tool.tool ? 'text-yellow-200' : 'text-white'}`}>
+                  {tool.tool}
+                </div>
                 <div className="text-sm text-gray-300">{tool.description}</div>
               </button>
             ))}
@@ -498,19 +574,38 @@ const ScenarioTraining = () => {
 
         {currentStep === 5 && (
           <div className="space-y-4">
-            {selectedItem && <div className="mb-4 p-3 bg-blue-900/30 border border-blue-500 rounded-lg text-blue-300">선택된 쿼리: <span className="font-mono text-sm text-white">{selectedItem}</span></div>}
+            {selectedItem && (
+              <div className="mb-4 p-3 bg-blue-900/30 border border-blue-500 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-blue-400" />
+                  <span className="text-blue-300">선택된 쿼리:</span>
+                  <span className="font-mono text-sm text-white">{selectedItem}</span>
+                </div>
+              </div>
+            )}
             <h4 className="text-cyan-400 font-bold text-lg">SIEM 쿼리 선택</h4>
             <p className="text-gray-300 text-sm mb-4">감염 경로를 추적하기 위한 최적의 검색 조건을 선택하세요.</p>
             {stepData.content.queries.map((query: any) => (
               <button
                 key={query.id}
                 onClick={() => handleStepAction(query.query)}
-                className={`w-full p-4 rounded-lg border-2 transition-all duration-300 text-left ${
-                  selectedItem === query.query ? 'border-yellow-400 bg-yellow-900/30' : 'border-cyan-500 bg-cyan-900/20'
+                className={`w-full p-4 rounded-lg border-2 transition-all duration-300 text-left relative ${
+                  selectedItem === query.query 
+                    ? 'border-yellow-400 bg-yellow-900/30 shadow-lg shadow-yellow-400/20 scale-105' 
+                    : 'border-cyan-500 bg-cyan-900/20'
                 } hover:bg-cyan-800/30`}
               >
+                {selectedItem === query.query && (
+                  <div className="absolute -top-2 -right-2">
+                    <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
+                      <CheckCircle className="w-4 h-4 text-black" />
+                    </div>
+                  </div>
+                )}
                 <div className="text-sm text-gray-300 mb-1">{query.description}</div>
-                <div className="font-mono text-sm text-white">{query.query}</div>
+                <div className={`font-mono text-sm ${selectedItem === query.query ? 'text-yellow-200' : 'text-white'}`}>
+                  {query.query}
+                </div>
               </button>
             ))}
           </div>
@@ -518,18 +613,37 @@ const ScenarioTraining = () => {
 
         {currentStep === 6 && (
           <div className="space-y-4">
-            {selectedItem && <div className="mb-4 p-3 bg-blue-900/30 border border-blue-500 rounded-lg text-blue-300">선택된 해시: <span className="font-mono text-sm text-white">{selectedItem}</span></div>}
+            {selectedItem && (
+              <div className="mb-4 p-3 bg-blue-900/30 border border-blue-500 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-blue-400" />
+                  <span className="text-blue-300">선택된 해시:</span>
+                  <span className="font-mono text-sm text-white">{selectedItem}</span>
+                </div>
+              </div>
+            )}
             <h4 className="text-yellow-400 font-bold text-lg">파일 해시 선택</h4>
             <p className="text-gray-300 text-sm mb-4">위협 정보 확인을 위해 조회할 파일을 선택하세요.</p>
             {stepData.content.hashes.map((hash: any) => (
               <button
                 key={hash.id}
                 onClick={() => handleStepAction(hash.hash)}
-                className={`w-full p-4 rounded-lg border-2 transition-all duration-300 text-left ${
-                  selectedItem === hash.hash ? 'border-yellow-400 bg-yellow-900/30' : 'border-yellow-500 bg-yellow-900/20'
+                className={`w-full p-4 rounded-lg border-2 transition-all duration-300 text-left relative ${
+                  selectedItem === hash.hash 
+                    ? 'border-yellow-400 bg-yellow-900/30 shadow-lg shadow-yellow-400/20 scale-105' 
+                    : 'border-yellow-500 bg-yellow-900/20'
                 } hover:bg-yellow-800/30`}
               >
-                <div className="font-bold text-white">{hash.file}</div>
+                {selectedItem === hash.hash && (
+                  <div className="absolute -top-2 -right-2">
+                    <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
+                      <CheckCircle className="w-4 h-4 text-black" />
+                    </div>
+                  </div>
+                )}
+                <div className={`font-bold ${selectedItem === hash.hash ? 'text-yellow-200' : 'text-white'}`}>
+                  {hash.file}
+                </div>
                 <div className="text-sm text-gray-300 mb-1">{hash.description}</div>
                 <div className="font-mono text-xs text-gray-300">{hash.hash}</div>
               </button>
@@ -539,18 +653,37 @@ const ScenarioTraining = () => {
 
         {currentStep === 7 && (
           <div className="space-y-4">
-            {selectedItem && <div className="mb-4 p-3 bg-blue-900/30 border border-blue-500 rounded-lg text-blue-300">선택된 플레이북: <span className="font-bold text-white">{selectedItem}</span></div>}
+            {selectedItem && (
+              <div className="mb-4 p-3 bg-blue-900/30 border border-blue-500 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-blue-400" />
+                  <span className="text-blue-300">선택된 플레이북:</span>
+                  <span className="font-bold text-white">{selectedItem}</span>
+                </div>
+              </div>
+            )}
             <h4 className="text-orange-400 font-bold text-lg">대응 플레이북 선택</h4>
             <p className="text-gray-300 text-sm mb-4">현재 상황에 가장 적합한 대응 절차를 선택하세요.</p>
             {stepData.content.playbooks.map((playbook: any) => (
               <button
                 key={playbook.id}
                 onClick={() => handleStepAction(playbook.name)}
-                className={`w-full p-4 rounded-lg border-2 transition-all duration-300 text-left ${
-                  selectedItem === playbook.name ? 'border-yellow-400 bg-yellow-900/30' : 'border-orange-500 bg-orange-900/20'
+                className={`w-full p-4 rounded-lg border-2 transition-all duration-300 text-left relative ${
+                  selectedItem === playbook.name 
+                    ? 'border-yellow-400 bg-yellow-900/30 shadow-lg shadow-yellow-400/20 scale-105' 
+                    : 'border-orange-500 bg-orange-900/20'
                 } hover:bg-orange-800/30`}
               >
-                <div className="font-bold text-white">{playbook.name}</div>
+                {selectedItem === playbook.name && (
+                  <div className="absolute -top-2 -right-2">
+                    <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
+                      <CheckCircle className="w-4 h-4 text-black" />
+                    </div>
+                  </div>
+                )}
+                <div className={`font-bold ${selectedItem === playbook.name ? 'text-yellow-200' : 'text-white'}`}>
+                  {playbook.name}
+                </div>
                 <div className="text-sm text-gray-300">{playbook.description}</div>
               </button>
             ))}
@@ -559,18 +692,37 @@ const ScenarioTraining = () => {
 
         {currentStep === 8 && (
           <div className="space-y-4">
-            {selectedItem && <div className="mb-4 p-3 bg-blue-900/30 border border-blue-500 rounded-lg text-blue-300">선택된 팀: <span className="font-bold text-white">{selectedItem}</span></div>}
+            {selectedItem && (
+              <div className="mb-4 p-3 bg-blue-900/30 border border-blue-500 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-blue-400" />
+                  <span className="text-blue-300">선택된 팀:</span>
+                  <span className="font-bold text-white">{selectedItem}</span>
+                </div>
+              </div>
+            )}
             <h4 className="text-blue-400 font-bold text-lg">이관 대상 팀 선택</h4>
             <p className="text-gray-300 text-sm mb-4">현재 상황을 처리하기에 가장 적합한 전문팀을 선택하세요.</p>
             {stepData.content.teams.map((team: any) => (
               <button
                 key={team.id}
                 onClick={() => handleStepAction(team.team)}
-                className={`w-full p-4 rounded-lg border-2 transition-all duration-300 text-left ${
-                  selectedItem === team.team ? 'border-yellow-400 bg-yellow-900/30' : 'border-blue-500 bg-blue-900/20'
+                className={`w-full p-4 rounded-lg border-2 transition-all duration-300 text-left relative ${
+                  selectedItem === team.team 
+                    ? 'border-yellow-400 bg-yellow-900/30 shadow-lg shadow-yellow-400/20 scale-105' 
+                    : 'border-blue-500 bg-blue-900/20'
                 } hover:bg-blue-800/30`}
               >
-                <div className="font-bold text-white">{team.team}</div>
+                {selectedItem === team.team && (
+                  <div className="absolute -top-2 -right-2">
+                    <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
+                      <CheckCircle className="w-4 h-4 text-black" />
+                    </div>
+                  </div>
+                )}
+                <div className={`font-bold ${selectedItem === team.team ? 'text-yellow-200' : 'text-white'}`}>
+                  {team.team}
+                </div>
                 <div className="text-sm text-gray-300">{team.description}</div>
               </button>
             ))}
