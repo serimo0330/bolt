@@ -10,7 +10,17 @@ import {
   Brain,
   Play,
   CheckCircle,
-  XCircle
+  XCircle,
+  Database,
+  Eye,
+  Zap,
+  MessageSquare,
+  Users,
+  Bell,
+  Activity,
+  Search,
+  FileText,
+  Settings
 } from 'lucide-react';
 import { Timer } from './Timer';
 import { traditionalScenarios } from '../data/traditionalScenarios';
@@ -34,6 +44,12 @@ const ScenarioTraining = () => {
   const [isStarted, setIsStarted] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const [timeUp, setTimeUp] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [alertAcknowledged, setAlertAcknowledged] = useState(false);
+  const [selectedTool, setSelectedTool] = useState<'siem' | 'edr' | 'soar' | 'tip' | null>(null);
+  const [chatMessages, setChatMessages] = useState<Array<{id: number, sender: string, message: string, timestamp: string}>>([]);
+  const [isAlertSounding, setIsAlertSounding] = useState(false);
+  const [playbookExecuted, setPlaybookExecuted] = useState(false);
 
   useEffect(() => {
     if (scenarioId) {
@@ -79,8 +95,56 @@ const ScenarioTraining = () => {
 
   const handleStartTraining = () => {
     setIsStarted(true);
+    // P1 등급 경보인 경우 사이렌 효과 시작
+    if (scenario?.priority === 'P1') {
+      setIsAlertSounding(true);
+    }
+    // 초기 경보 메시지 추가
+    addChatMessage('시스템', `${scenario?.priority} 등급 경보 발생! 즉시 대응 필요`);
   };
 
+  const addChatMessage = (sender: string, message: string) => {
+    const newMessage = {
+      id: Date.now(),
+      sender,
+      message,
+      timestamp: new Date().toLocaleTimeString()
+    };
+    setChatMessages(prev => [...prev, newMessage]);
+  };
+
+  const handleAlertAcknowledge = () => {
+    setAlertAcknowledged(true);
+    setIsAlertSounding(false);
+    addChatMessage('상황실장', '경보 인지 확인. 분석을 시작하세요.');
+    setCurrentStep(1);
+  };
+
+  const handleToolSelect = (tool: 'siem' | 'edr' | 'soar' | 'tip') => {
+    setSelectedTool(tool);
+    const toolNames = {
+      siem: 'SIEM',
+      edr: 'EDR', 
+      soar: 'SOAR',
+      tip: 'TIP'
+    };
+    addChatMessage('분석가', `${toolNames[tool]} 도구를 선택했습니다.`);
+  };
+
+  const handlePlaybookExecution = () => {
+    setPlaybookExecuted(true);
+    addChatMessage('상황실장', '플레이북 실행 확인. 유관부서에 전파 완료.');
+    addChatMessage('네트워크팀', '격리 조치 완료했습니다.');
+    setTimeout(() => {
+      addChatMessage('보안팀장', '초동대응 완료. 수고하셨습니다.');
+    }, 2000);
+  };
+
+  const getStepInstructions = () => {
+    if (!scenario) return '';
+    const steps = scenario.flow.split(' → ');
+    return steps[currentStep] || '모든 단계 완료';
+  };
   const handleCompleteTraining = () => {
     setIsCompleted(true);
   };
@@ -293,23 +357,247 @@ const ScenarioTraining = () => {
           </div>
         ) : (
           /* 훈련 진행 화면 */
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-black/50 backdrop-blur-sm border border-yellow-500/30 rounded-lg p-8 text-center">
-              <div className="text-4xl mb-6">🎯</div>
-              <h2 className="text-3xl font-bold text-yellow-400 mb-6">훈련 진행 중</h2>
-              <p className="text-green-200 text-xl mb-8">
-                {courseType === 'traditional' ? '기본 SOC 도구를 활용하여' : 'AI 어시스턴트와 협업하여'} 
-                <br />시나리오를 해결하고 있습니다...
-              </p>
+          <div className="w-full h-screen flex">
+            {/* 사이렌 효과 */}
+            {isAlertSounding && (
+              <div className="fixed inset-0 bg-red-500/20 animate-pulse z-40 pointer-events-none">
+                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-6 py-3 rounded-lg font-bold text-xl animate-bounce">
+                  🚨 P1 긴급 경보 발생! 클릭하여 인지하세요 🚨
+                </div>
+              </div>
+            )}
+
+            {/* 왼쪽 패널: 실시간 경보 피드 */}
+            <div className="w-1/4 bg-gray-900 border-r border-gray-700 p-4">
+              <div className="flex items-center gap-2 mb-4">
+                <Bell className="w-5 h-5 text-red-400" />
+                <h3 className="text-lg font-bold text-red-400">실시간 경보 피드</h3>
+              </div>
               
-              {/* 임시 완료 버튼 (실제로는 시나리오 인터랙션이 들어갈 부분) */}
-              <button
-                onClick={handleCompleteTraining}
-                className="px-8 py-4 bg-green-600 text-white rounded-lg font-bold text-xl
-                         hover:bg-green-700 transition-all duration-300"
-              >
-                훈련 완료
-              </button>
+              {/* 경보 목록 */}
+              <div className="space-y-2">
+                <div 
+                  className={`p-3 rounded-lg border cursor-pointer transition-all duration-300 ${
+                    !alertAcknowledged 
+                      ? 'border-red-500 bg-red-900/30 animate-pulse' 
+                      : 'border-green-500 bg-green-900/30'
+                  }`}
+                  onClick={!alertAcknowledged ? handleAlertAcknowledge : undefined}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className={`px-2 py-1 rounded text-xs font-bold ${getPriorityColor(scenario?.priority || '')}`}>
+                      {scenario?.priority}
+                    </span>
+                    <span className="text-xs text-gray-400">
+                      {new Date().toLocaleTimeString()}
+                    </span>
+                  </div>
+                  <div className="text-sm text-white font-semibold mb-1">
+                    {scenario?.title}
+                  </div>
+                  <div className="text-xs text-gray-300">
+                    역할: {scenario?.role}
+                  </div>
+                  {alertAcknowledged && (
+                    <div className="mt-2 text-xs text-green-400 flex items-center gap-1">
+                      <CheckCircle className="w-3 h-3" />
+                      인지 완료
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* 현재 단계 표시 */}
+              {alertAcknowledged && (
+                <div className="mt-6 p-3 bg-blue-900/30 border border-blue-500/30 rounded-lg">
+                  <h4 className="text-blue-400 font-bold mb-2 flex items-center gap-2">
+                    <Activity className="w-4 h-4" />
+                    현재 단계
+                  </h4>
+                  <p className="text-sm text-green-200">
+                    {getStepInstructions()}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* 중앙 패널: 상세 정보 창 (SIEM, EDR) */}
+            <div className="w-1/2 bg-black p-4">
+              <div className="flex items-center gap-4 mb-4">
+                <button
+                  onClick={() => handleToolSelect('siem')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ${
+                    selectedTool === 'siem' 
+                      ? 'bg-cyan-600 text-white' 
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  }`}
+                >
+                  <Database className="w-4 h-4" />
+                  SIEM
+                </button>
+                <button
+                  onClick={() => handleToolSelect('edr')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ${
+                    selectedTool === 'edr' 
+                      ? 'bg-purple-600 text-white' 
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  }`}
+                >
+                  <Eye className="w-4 h-4" />
+                  EDR
+                </button>
+                <button
+                  onClick={() => handleToolSelect('tip')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ${
+                    selectedTool === 'tip' 
+                      ? 'bg-yellow-600 text-white' 
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  }`}
+                >
+                  <Search className="w-4 h-4" />
+                  TIP
+                </button>
+              </div>
+
+              {/* 도구별 상세 화면 */}
+              <div className="bg-gray-800 rounded-lg p-4 h-96 overflow-y-auto">
+                {selectedTool === 'siem' && (
+                  <div>
+                    <h4 className="text-cyan-400 font-bold mb-3">SIEM 로그 분석</h4>
+                    <div className="font-mono text-sm space-y-2">
+                      <div className="text-green-300">$ query: source="firewall" | search "{scenario?.analysis?.who}"</div>
+                      <div className="text-gray-300">검색 결과: 47건의 로그 발견</div>
+                      <div className="text-yellow-300">
+                        [2024-01-15 14:23:17] ALERT: Suspicious activity from {scenario?.analysis?.who}
+                      </div>
+                      <div className="text-red-300">
+                        [2024-01-15 14:23:18] BLOCK: Connection attempt to {scenario?.analysis?.where}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {selectedTool === 'edr' && (
+                  <div>
+                    <h4 className="text-purple-400 font-bold mb-3">EDR 엔드포인트 분석</h4>
+                    <div className="space-y-3">
+                      <div className="bg-gray-700 p-3 rounded">
+                        <div className="text-yellow-300 font-semibold">프로세스 트리</div>
+                        <div className="text-sm text-gray-300 mt-1">
+                          └ explorer.exe (PID: 1234)<br/>
+                          &nbsp;&nbsp;└ malware.exe (PID: 5678) ⚠️
+                        </div>
+                      </div>
+                      <div className="bg-gray-700 p-3 rounded">
+                        <div className="text-yellow-300 font-semibold">네트워크 연결</div>
+                        <div className="text-sm text-red-300 mt-1">
+                          악성 C2 서버 통신 탐지: {scenario?.analysis?.who}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {selectedTool === 'tip' && (
+                  <div>
+                    <h4 className="text-yellow-400 font-bold mb-3">위협 인텔리전스 조회</h4>
+                    <div className="space-y-3">
+                      <div className="bg-gray-700 p-3 rounded">
+                        <div className="text-yellow-300 font-semibold">IP 평판 조회</div>
+                        <div className="text-sm text-red-300 mt-1">
+                          {scenario?.analysis?.who}: 악성 IP (APT 그룹 연관)
+                        </div>
+                      </div>
+                      <div className="bg-gray-700 p-3 rounded">
+                        <div className="text-yellow-300 font-semibold">공격 유형</div>
+                        <div className="text-sm text-gray-300 mt-1">
+                          {scenario?.analysis?.what}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {!selectedTool && alertAcknowledged && (
+                  <div className="text-center text-gray-400 mt-20">
+                    <Settings className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>분석 도구를 선택하세요</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* 오른쪽 패널: 대응 플레이북 및 채팅 */}
+            <div className="w-1/4 bg-gray-900 border-l border-gray-700 p-4">
+              {/* 플레이북 섹션 */}
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Zap className="w-5 h-5 text-orange-400" />
+                  <h3 className="text-lg font-bold text-orange-400">대응 플레이북</h3>
+                </div>
+                
+                {alertAcknowledged && (
+                  <div className="space-y-2">
+                    <div className="bg-orange-900/30 border border-orange-500/30 rounded-lg p-3">
+                      <div className="text-orange-300 font-semibold mb-2">
+                        추천 플레이북
+                      </div>
+                      <div className="text-sm text-gray-300 mb-3">
+                        {scenario?.title} 대응 플레이북
+                      </div>
+                      <button
+                        onClick={handlePlaybookExecution}
+                        disabled={playbookExecuted}
+                        className={`w-full px-3 py-2 rounded text-sm font-bold transition-all duration-300 ${
+                          playbookExecuted
+                            ? 'bg-green-600 text-white cursor-not-allowed'
+                            : 'bg-orange-600 text-white hover:bg-orange-700'
+                        }`}
+                      >
+                        {playbookExecuted ? '✓ 실행 완료' : '플레이북 실행'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 팀 채팅 섹션 */}
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-4">
+                  <MessageSquare className="w-5 h-5 text-green-400" />
+                  <h3 className="text-lg font-bold text-green-400">팀 채팅</h3>
+                </div>
+                
+                <div className="bg-gray-800 rounded-lg p-3 h-64 overflow-y-auto">
+                  {chatMessages.map((msg) => (
+                    <div key={msg.id} className="mb-3 last:mb-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Users className="w-3 h-3 text-blue-400" />
+                        <span className="text-xs font-semibold text-blue-400">
+                          {msg.sender}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {msg.timestamp}
+                        </span>
+                      </div>
+                      <div className="text-sm text-gray-200 ml-5">
+                        {msg.message}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 완료 버튼 */}
+              {playbookExecuted && (
+                <button
+                  onClick={handleCompleteTraining}
+                  className="w-full mt-4 px-4 py-3 bg-green-600 text-white rounded-lg font-bold
+                           hover:bg-green-700 transition-all duration-300"
+                >
+                  훈련 완료
+                </button>
+              )}
             </div>
           </div>
         )}
