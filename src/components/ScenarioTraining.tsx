@@ -1162,41 +1162,35 @@ const ScenarioTraining = () => {
 
   if (!scenario) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white">
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-red-400">시나리오를 찾을 수 없습니다</h1>
-            <button
-              onClick={() => navigate('/courses')}
-              className="mt-4 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              코스 목록으로 돌아가기
-            </button>
-          </div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white p-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-4xl font-bold text-red-400 mb-4">시나리오를 찾을 수 없습니다</h1>
+          <button
+            onClick={() => navigate('/courses')}
+            className="px-8 py-4 bg-blue-600 text-white rounded-lg font-bold text-xl
+                     hover:bg-blue-700 transition-all duration-300"
+          >
+            코스 목록으로 돌아가기
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white">
-      <div className="container mx-auto px-4 py-8">
-        {/* 헤더 */}
-        <div className="flex items-center justify-between mb-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white p-6">
+      {/* 헤더 */}
+      <div className="max-w-6xl mx-auto mb-8">
+        <div className="flex items-center justify-between mb-6">
           <button
             onClick={handleReturnToCourse}
-            className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
+            className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
             {courseType === 'traditional' ? 'A코스로 돌아가기' : 'B코스로 돌아가기'}
           </button>
-          
           {isStarted && !isCompleted && !timeUp && (
-            <Timer
-              duration={600} // 10분
-              onTimeUp={handleTimeUp}
-              className="text-yellow-400 font-bold text-xl"
-            />
+            <Timer onTimeUp={handleTimeUp} />
           )}
         </div>
 
@@ -1503,13 +1497,15 @@ const ScenarioTraining = () => {
         <div className="mt-12 text-center text-green-600 text-sm">
           <p>© 2025 corebyte.labs. All content rights reserved.</p>
         </div>
-      </div>
 
-      {/* Background Effects */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-green-400 rounded-full animate-ping opacity-20"></div>
-        <div className="absolute top-1/2 right-1/3 w-1 h-1 bg-yellow-400 rounded-full animate-pulse opacity-30"></div>
-        <div className="absolute bottom-1/3 left-1/2 w-1.5 h-1.5 bg-red-400 rounded-full animate-ping opacity-15"></div>
+        {/* Background Effects */}
+        <div className="fixed inset-0 pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-green-400 rounded-full animate-ping opacity-20"></div>
+          <div className="absolute top-1/2 right-1/3 w-1 h-1 bg-yellow-400 rounded-full animate-pulse opacity-30"></div>
+          <div className="absolute bottom-1/3 left-1/2 w-1.5 h-1.5 bg-red-400 rounded-full animate-ping opacity-15"></div>
+          <div className="absolute top-3/4 left-1/5 w-1 h-1 bg-cyan-400 rounded-full animate-pulse opacity-25"></div>
+          <div className="absolute top-1/6 right-1/4 w-1.5 h-1.5 bg-purple-400 rounded-full animate-ping opacity-20"></div>
+        </div>
       </div>
     </div>
   );
