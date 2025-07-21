@@ -63,142 +63,150 @@ const ScenarioTraining = () => {
   const [timeUp, setTimeUp] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [stepCompleted, setStepCompleted] = useState(false);
-  const [selectedProcess, setSelectedProcess] = useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [chatMessages, setChatMessages] = useState<string[]>([]);
   const [score, setScore] = useState(0);
+  const [showHint, setShowHint] = useState(false);
+  const [attemptCount, setAttemptCount] = useState(0);
 
   // 8단계 데이터 정의
   const trainingSteps: StepData[] = [
     {
       id: 1,
       title: "EDR P1 경보 확인",
-      description: "FIN-PC-07에서 발생한 랜섬웨어 탐지 경보를 확인하고 의심스러운 프로세스를 선택하세요",
+      description: "FIN-PC-07에서 발생한 경보를 분석하여 가장 위험한 프로세스를 식별하세요",
       tool: "EDR",
       content: {
         alerts: [
-          { id: 1, pc: "FIN-PC-07", process: "ransomware.exe", risk: "HIGH", time: "14:23:17" },
-          { id: 2, pc: "FIN-PC-07", process: "crypto.dll", risk: "HIGH", time: "14:23:18" },
-          { id: 3, pc: "FIN-PC-07", process: "explorer.exe", risk: "LOW", time: "14:23:15" }
+          { id: 1, pc: "FIN-PC-07", process: "ransomware.exe", risk: "HIGH", time: "14:23:17", description: "실행 파일, 높은 CPU 사용률" },
+          { id: 2, pc: "FIN-PC-07", process: "crypto.dll", risk: "HIGH", time: "14:23:18", description: "DLL 파일, 암호화 관련 API 호출" },
+          { id: 3, pc: "FIN-PC-07", process: "explorer.exe", risk: "LOW", time: "14:23:15", description: "시스템 프로세스, 정상 동작" },
+          { id: 4, pc: "FIN-PC-07", process: "notepad.exe", risk: "LOW", time: "14:20:10", description: "사용자 애플리케이션, 정상 동작" }
         ]
       },
       expectedAction: "ransomware.exe",
-      successMessage: "✅ 올바른 악성 프로세스를 식별했습니다!",
-      nextStepHint: "이제 현장 증거를 보존해야 합니다."
+      successMessage: "정확한 분석입니다. 해당 프로세스가 주요 위협으로 확인되었습니다.",
+      nextStepHint: "증거 보존이 필요합니다."
     },
     {
       id: 2,
       title: "현장 증거 보존",
-      description: "PC 전원을 유지하고 랜섬노트 화면을 촬영하여 증거를 보존하세요",
+      description: "현재 상황에서 가장 중요한 증거를 보존하는 방법을 선택하세요",
       tool: "물리적 조치",
       content: {
         actions: [
-          { id: 1, action: "PC 전원 끄기", correct: false },
-          { id: 2, action: "화면 촬영", correct: true },
-          { id: 3, action: "재부팅", correct: false },
-          { id: 4, action: "백신 실행", correct: false }
+          { id: 1, action: "PC 전원 끄기", description: "시스템 종료로 추가 피해 방지", correct: false },
+          { id: 2, action: "화면 촬영", description: "현재 화면 상태 기록", correct: true },
+          { id: 3, action: "재부팅", description: "시스템 재시작으로 정상화", correct: false },
+          { id: 4, action: "백신 실행", description: "악성코드 즉시 제거", correct: false }
         ]
       },
       expectedAction: "화면 촬영",
-      successMessage: "✅ 랜섬노트 화면이 성공적으로 보존되었습니다!",
-      nextStepHint: "네트워크 확산을 방지하기 위해 격리가 필요합니다."
+      successMessage: "올바른 선택입니다. 중요한 증거가 보존되었습니다.",
+      nextStepHint: "확산 방지 조치가 필요합니다."
     },
     {
       id: 3,
       title: "네트워크 케이블 물리적 분리",
-      description: "랜섬웨어 확산 방지를 위해 감염된 PC의 네트워크를 격리하세요",
+      description: "감염 확산을 방지하기 위한 가장 효과적인 격리 방법을 선택하세요",
       tool: "물리적 조치",
       content: {
-        networkStatus: "연결됨",
         actions: [
-          { id: 1, action: "네트워크 케이블 분리", correct: true },
-          { id: 2, action: "Wi-Fi 비활성화", correct: false },
-          { id: 3, action: "방화벽 설정", correct: false }
+          { id: 1, action: "네트워크 케이블 분리", description: "물리적 연결 차단", correct: true },
+          { id: 2, action: "Wi-Fi 비활성화", description: "무선 연결 해제", correct: false },
+          { id: 3, action: "방화벽 설정", description: "소프트웨어적 차단", correct: false },
+          { id: 4, action: "네트워크 드라이버 제거", description: "드라이버 수준 차단", correct: false }
         ]
       },
       expectedAction: "네트워크 케이블 분리",
-      successMessage: "✅ 네트워크가 성공적으로 격리되었습니다!",
-      nextStepHint: "메모리에 있는 중요한 증거를 수집해야 합니다."
+      successMessage: "효과적인 격리 조치입니다. 확산이 차단되었습니다.",
+      nextStepHint: "휘발성 증거 수집이 필요합니다."
     },
     {
       id: 4,
       title: "메모리 덤프 수집",
-      description: "volatility 도구를 사용하여 메모리 덤프를 수집하세요",
+      description: "현재 상황에서 휘발성 증거를 수집하기 위한 적절한 도구를 선택하세요",
       tool: "포렌식 도구",
       content: {
         tools: [
-          { id: 1, tool: "volatility", description: "메모리 덤프 수집", correct: true },
-          { id: 2, tool: "wireshark", description: "네트워크 분석", correct: false },
-          { id: 3, tool: "autopsy", description: "디스크 분석", correct: false }
+          { id: 1, tool: "volatility", description: "메모리 분석 및 덤프 도구", correct: true },
+          { id: 2, tool: "wireshark", description: "네트워크 패킷 분석 도구", correct: false },
+          { id: 3, tool: "autopsy", description: "디스크 포렌식 분석 도구", correct: false },
+          { id: 4, tool: "hashcalc", description: "파일 해시 계산 도구", correct: false }
         ]
       },
       expectedAction: "volatility",
-      successMessage: "✅ 메모리 덤프가 성공적으로 수집되었습니다!",
-      nextStepHint: "SIEM에서 감염 경로를 추적해야 합니다."
+      successMessage: "적절한 도구 선택입니다. 메모리 증거가 확보되었습니다.",
+      nextStepHint: "감염 경로 분석이 필요합니다."
     },
     {
       id: 5,
       title: "SIEM 쿼리 작성하여 최초 감염 경로 추적",
-      description: "SIEM에서 FIN-PC-07의 최초 감염 경로를 추적하는 쿼리를 실행하세요",
+      description: "FIN-PC-07의 감염 경로를 찾기 위한 가장 적절한 검색 조건을 선택하세요",
       tool: "SIEM",
       content: {
         queries: [
-          { id: 1, query: 'source="email" AND dest="FIN-PC-07" AND attachment="*.exe"', correct: true },
-          { id: 2, query: 'source="web" AND dest="FIN-PC-07"', correct: false },
-          { id: 3, query: 'source="usb" AND dest="FIN-PC-07"', correct: false }
+          { id: 1, query: 'source="email" AND dest="FIN-PC-07" AND attachment="*.exe"', description: "이메일 첨부파일 검색", correct: true },
+          { id: 2, query: 'source="web" AND dest="FIN-PC-07"', description: "웹 접속 기록 검색", correct: false },
+          { id: 3, query: 'source="usb" AND dest="FIN-PC-07"', description: "USB 연결 기록 검색", correct: false },
+          { id: 4, query: 'source="network" AND dest="FIN-PC-07"', description: "네트워크 연결 검색", correct: false }
         ]
       },
       expectedAction: 'source="email" AND dest="FIN-PC-07" AND attachment="*.exe"',
-      successMessage: "✅ 이메일 첨부파일을 통한 감염 경로를 발견했습니다!",
-      nextStepHint: "악성 파일의 정체를 확인해야 합니다."
+      successMessage: "효과적인 쿼리입니다. 감염 경로가 확인되었습니다.",
+      nextStepHint: "위협 정보 확인이 필요합니다."
     },
     {
       id: 6,
       title: "악성 파일 해시값 TIP 조회",
-      description: "수집된 악성 파일의 해시값을 TIP에서 조회하여 위협 정보를 확인하세요",
+      description: "위협 정보를 확인하기 위해 조회할 파일을 선택하세요",
       tool: "TIP",
       content: {
         hashes: [
-          { id: 1, hash: "a1b2c3d4e5f6789012345678901234567890abcd", file: "ransomware.exe", correct: true },
-          { id: 2, hash: "1234567890abcdef1234567890abcdef12345678", file: "explorer.exe", correct: false },
-          { id: 3, hash: "abcdef1234567890abcdef1234567890abcdef12", file: "system32.dll", correct: false }
+          { id: 1, hash: "a1b2c3d4e5f6789012345678901234567890abcd", file: "ransomware.exe", description: "의심 프로세스 파일", correct: true },
+          { id: 2, hash: "1234567890abcdef1234567890abcdef12345678", file: "explorer.exe", description: "시스템 프로세스 파일", correct: false },
+          { id: 3, hash: "abcdef1234567890abcdef1234567890abcdef12", file: "system32.dll", description: "시스템 라이브러리 파일", correct: false },
+          { id: 4, hash: "fedcba0987654321fedcba0987654321fedcba09", file: "notepad.exe", description: "사용자 애플리케이션 파일", correct: false }
         ]
       },
       expectedAction: "a1b2c3d4e5f6789012345678901234567890abcd",
-      successMessage: "✅ WannaCry 변종 랜섬웨어로 확인되었습니다!",
-      nextStepHint: "이제 대응 플레이북을 실행해야 합니다."
+      successMessage: "정확한 선택입니다. 위협 정보가 확인되었습니다.",
+      nextStepHint: "대응 절차 실행이 필요합니다."
     },
     {
       id: 7,
       title: "랜섬웨어 초기 대응 플레이북 실행",
-      description: "SOAR에서 적절한 대응 플레이북을 선택하고 실행하세요",
+      description: "현재 상황에 가장 적합한 대응 절차를 선택하세요",
       tool: "SOAR",
       content: {
         playbooks: [
           { id: 1, name: "랜섬웨어 초기 대응", description: "격리, 백업 확인, 복구 준비", correct: true },
           { id: 2, name: "DDoS 공격 대응", description: "트래픽 차단, 서버 보호", correct: false },
-          { id: 3, name: "피싱 메일 대응", description: "계정 잠금, 패스워드 변경", correct: false }
+          { id: 3, name: "피싱 메일 대응", description: "계정 잠금, 패스워드 변경", correct: false },
+          { id: 4, name: "내부자 위협 대응", description: "계정 모니터링, 접근 제한", correct: false }
         ]
       },
       expectedAction: "랜섬웨어 초기 대응",
-      successMessage: "✅ 랜섬웨어 초기 대응 플레이북이 실행되었습니다!",
-      nextStepHint: "전문 분석팀에 이관해야 합니다."
+      successMessage: "적절한 대응 절차입니다. 플레이북이 실행되었습니다.",
+      nextStepHint: "전문팀 이관이 필요합니다."
     },
     {
       id: 8,
       title: "침해사고분석팀 이관",
-      description: "수집된 모든 증거와 분석 결과를 침해사고분석팀에 이관하세요",
+      description: "현재 상황을 처리하기에 가장 적합한 전문팀을 선택하세요",
       tool: "커뮤니케이션",
       content: {
         teams: [
-          { id: 1, team: "침해사고분석팀", description: "심층 분석 및 복구", correct: true },
-          { id: 2, team: "네트워크팀", description: "네트워크 보안 강화", correct: false },
-          { id: 3, team: "개발팀", description: "시스템 개발 및 유지보수", correct: false }
+          { id: 1, team: "침해사고분석팀", description: "심층 분석 및 복구 전문", correct: true },
+          { id: 2, team: "네트워크팀", description: "네트워크 보안 강화 전문", correct: false },
+          { id: 3, team: "개발팀", description: "시스템 개발 및 유지보수", correct: false },
+          { id: 4, team: "법무팀", description: "법적 대응 및 컴플라이언스", correct: false }
         ]
       },
       expectedAction: "침해사고분석팀",
-      successMessage: "✅ 침해사고분석팀으로 성공적으로 이관되었습니다!",
-      nextStepHint: "모든 초동대응이 완료되었습니다."
+      successMessage: "올바른 선택입니다. 전문팀으로 이관되었습니다.",
+      nextStepHint: "초동대응이 완료되었습니다."
     }
   ];
 
@@ -248,10 +256,14 @@ const ScenarioTraining = () => {
 
   const handleStepAction = (action: string) => {
     const currentStepData = trainingSteps[currentStep - 1];
+    setSelectedItem(action);
+    setAttemptCount(prev => prev + 1);
     
     if (action === currentStepData.expectedAction) {
       setStepCompleted(true);
-      setScore(prev => prev + 100);
+      // 시도 횟수에 따른 점수 차등 부여
+      const stepScore = attemptCount === 0 ? 100 : attemptCount === 1 ? 80 : attemptCount === 2 ? 60 : 40;
+      setScore(prev => prev + stepScore);
       
       // 단계별 분석 결과 설정
       switch (currentStep) {
@@ -323,14 +335,23 @@ const ScenarioTraining = () => {
       
       addChatMessage(`상황실장: ${currentStepData.successMessage}`);
       
-      if (currentStep < 8) {
+      if (currentStep < 8 && !showHint) {
         addChatMessage(`상황실장: ${currentStepData.nextStepHint}`);
       } else {
         addChatMessage("상황실장: 모든 초동대응이 완료되었습니다. 훌륭한 대응이었습니다!");
       }
     } else {
       addChatMessage("상황실장: 다시 시도해보세요. 올바른 선택이 아닙니다.");
+      
+      // 3번 틀리면 힌트 제공
+      if (attemptCount >= 2 && !showHint) {
+        setShowHint(true);
+        addChatMessage("상황실장: 힌트 - 위험도가 높고 실행 파일 형태인 프로세스를 찾아보세요.");
+      }
     }
+    
+    // 선택 후 3초 뒤에 선택 상태 초기화
+    setTimeout(() => setSelectedItem(null), 3000);
   };
 
   const handleNextStep = () => {
