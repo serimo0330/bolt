@@ -1285,9 +1285,9 @@ const ScenarioTraining = () => {
                     <span className="text-sm font-bold">10분</span>
                   </div>
                 </div>
-        {!isStarted ? (
-          /* 시나리오 브리핑 */
-          <div className="max-w-4xl mx-auto">
+              </div>
+            </div>
+
             {/* 상황 정보만 표시 */}
             <div className="bg-black/50 backdrop-blur-sm border border-red-500/30 rounded-lg p-6 mb-8">
               <div className="flex items-center gap-3 mb-4">
