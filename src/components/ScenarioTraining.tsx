@@ -1298,28 +1298,6 @@ const ScenarioTraining = () => {
                 {scenario.situation}
               </p>
             </div>
-
-            {/* 8단계 진행 과정 */}
-            <div className="bg-black/50 backdrop-blur-sm border border-green-500/30 rounded-lg p-6 mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <BookOpen className="w-6 h-6 text-green-400" />
-                <h3 className="text-xl font-bold text-green-400">8단계 대응 과정</h3>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {trainingSteps.map((step, index) => (
-                  <div key={step.id} className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg">
-                    <div className="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                      {step.id}
-                    </div>
-                    <div>
-                      <div className="font-bold text-white text-sm">{step.title}</div>
-                      <div className="text-xs text-gray-400">{step.tool}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
             {/* 시작 버튼 */}
             <div className="text-center">
               <button
