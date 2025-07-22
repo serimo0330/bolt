@@ -217,52 +217,47 @@ const TraditionalSOCCourse = () => {
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {traditionalScenarios.map((scenario) => (
-                    <div key={scenario.id} className="bg-gray-800/50 p-6 rounded-lg border border-gray-600/30 hover:border-blue-500/50 transition-all duration-300">
+                    <div key={scenario.id} className="bg-gray-800/50 p-6 rounded-lg border border-gray-600/30 hover:border-blue-500/50 transition-all duration-300 cursor-pointer group"
+                         onClick={() => handleScenarioStart(scenario.id)}>
                       {/* 시나리오 헤더 */}
                       <div className="flex items-start justify-between mb-4">
                         <div>
-                          <h3 className="text-xl font-bold text-yellow-400 mb-2">
-                            시나리오 {scenario.id}: {scenario.title}
+                          <h3 className="text-xl font-bold text-yellow-400 mb-2 group-hover:text-yellow-300 transition-colors">
+                            🚨 시나리오 {scenario.id}: {scenario.title}
                           </h3>
                           <div className="flex items-center gap-3 mb-2">
                             <span className={`px-3 py-1 rounded-lg border text-sm font-bold ${getPriorityColor(scenario.priority)}`}>
                               {scenario.priority} {scenario.priority === 'P1' ? '긴급' : scenario.priority === 'P2' ? '높음' : '중간'}
                             </span>
-                            <span className="text-cyan-400 text-sm">
-                              역할: {scenario.role}
+                            <span className="text-cyan-400 text-sm font-medium">
+                              👤 {scenario.role}
                             </span>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <Clock className="w-4 h-4 text-green-400" />
-                          <span className="text-green-400 text-sm">10분</span>
+                          <span className="text-green-400 text-sm font-bold">⏱️ 10분</span>
                         </div>
                       </div>
 
-                      {/* 상황 정보 */}
-                      {/* 간단한 설명 */}
+                      {/* 간단한 미리보기 */}
                       <div className="mb-6">
-                        <p className="text-green-200 text-sm leading-relaxed">
-                          {scenario.situation.length > 100 
-                            ? `${scenario.situation.substring(0, 100)}...` 
-                            : scenario.situation}
+                        <p className="text-green-200 text-sm leading-relaxed mb-3">
+                          {scenario.situation.substring(0, 80)}...
                         </p>
-                        <div className="mt-3 text-xs text-gray-400">
-                          💡 상세 정보는 훈련 시작 후 공개됩니다
+                        <div className="flex items-center gap-2 text-xs text-blue-400">
+                          <span className="animate-pulse">🎯</span>
+                          <span>클릭하여 즉시 훈련 시작</span>
                         </div>
                       </div>
 
-                      {/* 시작 버튼 */}
-                      <button
-                        onClick={() => handleScenarioStart(scenario.id)}
-                        className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 
-                                 border-2 border-blue-400 rounded-lg text-white font-bold
-                                 hover:from-blue-500 hover:to-blue-600 hover:border-blue-300
-                                 transition-all duration-300 flex items-center justify-center gap-2"
-                      >
-                        <Play className="w-5 h-5" />
-                        모의훈련 {scenario.id} 시작
-                      </button>
+                      {/* 호버 효과 */}
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="w-full h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full"></div>
+                        <div className="text-center mt-2 text-blue-300 text-sm font-bold">
+                          🚀 훈련 시작하기
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
