@@ -32,6 +32,7 @@ import {
   Phone
 } from 'lucide-react';
 import { Timer } from './Timer';
+import { TypewriterEffect } from './TypewriterEffect';
 import { traditionalScenarios } from '../data/traditionalScenarios';
 import { nextGenScenarios } from '../data/nextGenScenarios';
 
@@ -73,6 +74,8 @@ const ScenarioTraining = () => {
   const [score, setScore] = useState(0);
   const [showHint, setShowHint] = useState(false);
   const [attemptCount, setAttemptCount] = useState(0);
+  const [showBriefing, setShowBriefing] = useState(true);
+  const [briefingComplete, setBriefingComplete] = useState(false);
 
   // 8단계 데이터 정의
   const trainingSteps: StepData[] = [
@@ -401,8 +404,13 @@ const ScenarioTraining = () => {
   };
 
   const handleStartTraining = () => {
+    setShowBriefing(false);
     setIsStarted(true);
     addChatMessage("상황실장: 훈련을 시작합니다. 첫 번째 단계를 진행하세요.");
+  };
+
+  const handleBriefingComplete = () => {
+    setBriefingComplete(true);
   };
 
   const addChatMessage = (message: string) => {
@@ -1172,6 +1180,143 @@ const ScenarioTraining = () => {
           >
             코스 목록으로 돌아가기
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 상황 브리핑 화면
+  if (showBriefing) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white relative overflow-hidden">
+        <div className="container mx-auto px-4 py-8 relative z-10">
+          {/* 네비게이션 */}
+          <div className="mb-6">
+            <div className="flex gap-4">
+              <button
+                onClick={() => navigate(-1)}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg
+                         hover:bg-gray-600 transition-all duration-300"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                뒤로 가기
+              </button>
+              <button
+                onClick={() => navigate('/')}
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg
+                         hover:bg-green-700 transition-all duration-300"
+              >
+                <Home className="w-4 h-4" />
+                홈으로 가기
+              </button>
+            </div>
+          </div>
+
+          {/* 타이머 */}
+          <div className="fixed top-4 right-4 z-50">
+            <div className="bg-black/80 backdrop-blur-sm border border-red-500/30 rounded-lg p-4">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-red-400 animate-pulse" />
+                  <span className="text-red-400 font-mono text-sm">긴급 상황</span>
+                </div>
+                <div className="text-red-400 font-mono text-xl font-bold animate-pulse">
+                  🚨 ALERT
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 긴급 상황 브리핑 */}
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <div className="text-8xl mb-6 animate-pulse">🚨</div>
+              <h1 className="text-5xl font-bold text-red-400 mb-4 animate-pulse">
+                긴급 상황 발생!
+              </h1>
+              <div className="text-2xl text-yellow-400 mb-8">
+                <TypewriterEffect 
+                  text={`${scenario.title} 사고 감지됨`}
+                  delay={100}
+                  onComplete={handleBriefingComplete}
+                />
+              </div>
+            </div>
+
+            {/* 시나리오 정보 */}
+            <div className="bg-black/70 backdrop-blur-sm border-2 border-red-500/50 rounded-lg p-8 mb-8">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-4">
+                  <span className={`px-4 py-2 rounded-lg border text-xl font-bold animate-pulse ${
+                    scenario.priority === 'P1' ? 'text-red-400 bg-red-900/50 border-red-500' :
+                    scenario.priority === 'P2' ? 'text-orange-400 bg-orange-900/50 border-orange-500' :
+                    'text-yellow-400 bg-yellow-900/50 border-yellow-500'
+                  }`}>
+                    {scenario.priority} {scenario.priority === 'P1' ? '긴급' : scenario.priority === 'P2' ? '높음' : '중간'}
+                  </span>
+                  <span className="text-cyan-400 text-xl font-bold">
+                    👤 당신의 역할: {scenario.role}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-green-400 text-xl font-bold">
+                  <Clock className="w-6 h-6" />
+                  ⏱️ 골든타임: 10분
+                </div>
+              </div>
+
+              {/* 상황 정보 */}
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-red-400 mb-4 flex items-center gap-2">
+                  <AlertTriangle className="w-6 h-6 animate-pulse" />
+                  상황 브리핑
+                </h2>
+                <p className="text-green-200 text-lg leading-relaxed bg-gray-900/50 p-4 rounded-lg border border-gray-600/30">
+                  {scenario.situation}
+                </p>
+              </div>
+
+              {/* 미션 목표 */}
+              <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-4">
+                <h3 className="text-yellow-400 font-bold text-lg mb-2 flex items-center gap-2">
+                  <Target className="w-5 h-5" />
+                  미션 목표
+                </h3>
+                <p className="text-green-200">
+                  10분 안에 초동대응을 완료하여 피해 확산을 막고, 공격의 6하 원칙(Who, What, When, Where, How, How much)을 파악하세요.
+                </p>
+              </div>
+            </div>
+
+            {/* 미션 수락 */}
+            {briefingComplete && (
+              <div className="text-center animate-fade-in">
+                <div className="mb-6">
+                  <p className="text-red-400 font-bold text-2xl mb-4 animate-pulse">
+                    ⚠️ 미션을 수락하시겠습니까? ⚠️
+                  </p>
+                  <p className="text-green-300 text-xl">
+                    수락 시 즉시 10분 타이머가 시작됩니다.
+                  </p>
+                </div>
+                
+                <button
+                  onClick={handleStartTraining}
+                  className="group relative px-16 py-6 bg-gradient-to-r from-red-600 to-red-700 
+                           border-2 border-red-400 rounded-lg text-white font-bold text-2xl
+                           hover:from-red-500 hover:to-red-600 hover:border-red-300
+                           transform hover:scale-105 transition-all duration-300
+                           shadow-lg hover:shadow-red-500/25"
+                >
+                  <span className="relative z-10 flex items-center gap-3">
+                    <Play className="w-8 h-8" />
+                    🎯 미션 수락 및 훈련 시작
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-red-400 to-red-600 opacity-0 
+                                group-hover:opacity-20 rounded-lg transition-opacity duration-300"></div>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );
