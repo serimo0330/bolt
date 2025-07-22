@@ -1196,6 +1196,15 @@ const ScenarioTraining = () => {
 
         {/* 시나리오 정보 */}
         <div className="bg-black/50 backdrop-blur-sm border border-yellow-500/30 rounded-lg p-6 mb-8">
+          {/* 브레드크럼 네비게이션 */}
+          <div className="flex items-center gap-2 text-sm text-gray-400 mb-4">
+            <span>코스 선택</span>
+            <span>→</span>
+            <span>시나리오 목록</span>
+            <span>→</span>
+            <span className="text-yellow-400 font-bold">훈련 진행 중</span>
+          </div>
+          
           {/* 시나리오 제목 (클릭 가능) */}
           <button
             onClick={() => setShowScenarioDetails(!showScenarioDetails)}
@@ -1460,8 +1469,22 @@ const ScenarioTraining = () => {
               <div className="lg:col-span-2">
                 <div className="bg-black/50 backdrop-blur-sm border border-green-500/30 rounded-lg p-4 mb-6">
                   <h2 className="text-xl font-bold text-green-400 mb-4">
-                    단계 {currentStep}: {trainingSteps[currentStep - 1].title}
+                    🎯 단계 {currentStep}: {trainingSteps[currentStep - 1].title}
                   </h2>
+                  
+                  {/* 상황 정보 (첫 번째 단계에서만 표시) */}
+                  {currentStep === 1 && (
+                    <div className="mb-6 p-4 bg-red-900/20 border border-red-500/30 rounded-lg">
+                      <div className="flex items-center gap-2 mb-3">
+                        <AlertTriangle className="w-5 h-5 text-red-400" />
+                        <h4 className="text-red-400 font-bold">🚨 긴급 상황 발생!</h4>
+                      </div>
+                      <p className="text-green-200 leading-relaxed">
+                        {scenario?.situation}
+                      </p>
+                    </div>
+                  )}
+                  
                 </div>
                 {renderStepContent()}
               </div>
