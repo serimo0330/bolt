@@ -41,6 +41,10 @@ const ScenarioTraining = () => {
   
   // 각 단계별 선택 결과 저장
   const [stepChoices, setStepChoices] = useState<{[key: number]: any}>({});
+  const [currentTool, setCurrentTool] = useState<string>('');
+  const [toolData, setToolData] = useState<any>({});
+  const [showToolInterface, setShowToolInterface] = useState(false);
+  const [toolLoading, setToolLoading] = useState(false);
 
   const scenario = scenarioId ? scenarioTrainingData[parseInt(scenarioId)] : null;
   const totalSteps = 8; // 고정된 8단계
@@ -50,6 +54,237 @@ const ScenarioTraining = () => {
       setStartTime(new Date());
     }
   }, [scenario, startTime]);
+
+  // SOC 도구별 인터페이스 데이터
+  const getToolInterface = (stepId: number) => {
+    switch (stepId) {
+      case 1: // EDR Console
+        return {
+          toolName: 'EDR Console',
+          toolIcon: '🖥️',
+          color: 'purple',
+          interface: {
+            alerts: [
+              { id: 1, severity: 'HIGH', process: 'ransomware.exe', action: 'File Encryption', time: '14:23:17', status: 'ACTIVE' },
+              { id: 2, severity: 'MEDIUM', process: 'explorer.exe', action: 'Unusual File Access', time: '14:23:15', status: 'INVESTIGATING' }
+            ],
+            processTree: {
+              parent: 'winword.exe (PID: 1234)',
+              children: ['ransomware.exe (PID: 5678)', 'crypto.dll (Loaded)']
+            },
+            networkConnections: [
+              { ip: '203.0.113.45', port: '443', protocol: 'HTTPS', status: 'ESTABLISHED', direction: 'OUTBOUND' }
+            ]
+          }
+        };
+      
+      case 2: // SIEM Query Interface
+        return {
+          toolName: 'SIEM Query Console',
+          toolIcon: '📊',
+          color: 'cyan',
+          interface: {
+            queryHistory: [
+              'source="email" AND dest="FIN-PC-07" AND attachment="*.exe"',
+              'index=web_logs src_ip="FIN-PC-07" | stats count by url',
+              'index=usb_logs host="FIN-PC-07" action="connect"'
+            ],
+            timeline: [
+              { time: '14:20:33', event: 'Email received: invoice.exe attachment', source: 'Mail Server', severity: 'INFO' },
+              { time: '14:22:15', event: 'File execution detected', source: 'FIN-PC-07', severity: 'WARNING' },
+              { time: '14:23:17', event: 'Mass file encryption started', source: 'EDR Agent', severity: 'CRITICAL' }
+            ],
+            searchResults: {
+              emailLogs: { count: 15, suspicious: 1 },
+              webLogs: { count: 0, suspicious: 0 },
+              usbLogs: { count: 0, suspicious: 0 }
+            }
+          }
+        };
+      
+      case 3: // Network Security Console
+        return {
+          toolName: 'Network Security Console',
+          toolIcon: '🌐',
+          color: 'green',
+          interface: {
+            networkMap: {
+              infected: [{ name: 'FIN-PC-07', ip: '192.168.1.107', status: 'INFECTED' }],
+              clean: [
+                { name: 'FIN-PC-01', ip: '192.168.1.101', status: 'CLEAN' },
+                { name: 'FIN-PC-02', ip: '192.168.1.102', status: 'CLEAN' }
+              ],
+              isolated: []
+            },
+            isolationOptions: [
+              { method: 'Network Cable Disconnect', time: 'Immediate', reversible: true },
+              { method: 'Firewall Block', time: '30 seconds', reversible: true },
+              { method: 'VLAN Quarantine', time: '2 minutes', reversible: true }
+            ],
+            evidenceTools: [
+              { name: 'Memory Dump', status: 'Ready', size: '8GB', time: '3 min' },
+              { name: 'Screen Capture', status: 'Ready', size: '2MB', time: '5 sec' },
+              { name: 'Process List', status: 'Ready', size: '1MB', time: '10 sec' }
+            ]
+          }
+        };
+      
+      case 4: // Digital Forensics Toolkit
+        return {
+          toolName: 'Digital Forensics Toolkit',
+          toolIcon: '🔍',
+          color: 'orange',
+          interface: {
+            availableTools: [
+              { name: 'Volatility', version: '3.0', purpose: 'Memory Analysis' },
+              { name: 'FTK Imager', version: '4.5', purpose: 'Disk Imaging' },
+              { name: 'KAPE', version: '1.3', purpose: 'Artifact Collection' }
+            ],
+            acquisitionStatus: {
+              memoryDump: { status: 'Ready', estimatedTime: '3 minutes', integrity: 'MD5 + SHA256' },
+              diskImage: { status: 'Ready', estimatedTime: '45 minutes', integrity: 'Bit-by-bit copy' },
+              liveArtifacts: { status: 'Ready', estimatedTime: '5 minutes', integrity: 'Hash verified' }
+            },
+            chainOfCustody: {
+              investigator: 'SOC Analyst',
+              timestamp: '2024-01-15 14:25:00',
+              location: 'Finance Department',
+              witness: 'IT Manager'
+            }
+          }
+        };
+      
+      case 5: // Threat Intelligence Platform
+        return {
+          toolName: 'Threat Intelligence Platform',
+          toolIcon: '🧠',
+          color: 'indigo',
+          interface: {
+            searchQuery: {
+              type: 'File Hash',
+              value: 'a1b2c3d4e5f6789012345678901234567890abcd',
+              status: 'Analyzing...'
+            },
+            threatIntel: {
+              malwareFamily: 'WannaCry Variant',
+              threatActor: 'Lazarus Group (APT38)',
+              firstSeen: '2024-01-10 08:30:00',
+              lastSeen: '2024-01-15 12:45:00',
+              confidence: 'High (87%)',
+              severity: 'Critical'
+            },
+            relatedIOCs: [
+              { type: 'IP', value: '203.0.113.45', reputation: 'Malicious', sources: 5 },
+              { type: 'Domain', value: 'malware-c2.evil.com', reputation: 'Malicious', sources: 8 },
+              { type: 'File Hash', value: 'b2c3d4e5f6...', reputation: 'Suspicious', sources: 3 }
+            ],
+            campaigns: [
+              { name: 'Operation Ghost', active: true, targets: 'Financial Sector' }
+            ]
+          }
+        };
+      
+      case 6: // SIEM Dashboard (Impact Assessment)
+        return {
+          toolName: 'SIEM Impact Dashboard',
+          toolIcon: '📈',
+          color: 'red',
+          interface: {
+            impactMetrics: {
+              affectedSystems: { count: 1, percentage: '0.5%' },
+              encryptedFiles: { count: 1247, size: '15.6 GB' },
+              affectedUsers: { count: 3, department: 'Finance' },
+              downtime: { duration: '23 minutes', cost: '$12,500' }
+            },
+            spreadAnalysis: {
+              networkSpread: 'CONTAINED',
+              lateralMovement: 'NOT DETECTED',
+              dataExfiltration: 'UNDER INVESTIGATION',
+              persistenceMechanisms: 'NONE FOUND'
+            },
+            businessImpact: {
+              primaryImpact: 'Finance Department Offline',
+              secondaryImpact: 'Month-end Reporting Delayed',
+              complianceRisk: 'Medium',
+              reputationRisk: 'Low'
+            }
+          }
+        };
+      
+      case 7: // SOAR Playbook Console
+        return {
+          toolName: 'SOAR Playbook Console',
+          toolIcon: '⚡',
+          color: 'yellow',
+          interface: {
+            recommendedPlaybooks: [
+              { 
+                name: 'Ransomware Incident Response', 
+                steps: 12, 
+                eta: '15 minutes',
+                automation: '75%',
+                success_rate: '94%'
+              },
+              { 
+                name: 'Malware Containment', 
+                steps: 8, 
+                eta: '10 minutes',
+                automation: '85%',
+                success_rate: '98%'
+              }
+            ],
+            currentExecution: {
+              playbook: 'None Selected',
+              progress: '0%',
+              nextAction: 'Select Playbook',
+              approvalRequired: true
+            },
+            automationCapabilities: [
+              { action: 'Network Isolation', automated: true, approval: false },
+              { action: 'Evidence Collection', automated: true, approval: false },
+              { action: 'Threat Hunting', automated: false, approval: true },
+              { action: 'System Recovery', automated: false, approval: true }
+            ]
+          }
+        };
+      
+      case 8: // Incident Management System
+        return {
+          toolName: 'Incident Management System',
+          toolIcon: '📋',
+          color: 'blue',
+          interface: {
+            ticketInfo: {
+              ticketID: 'INC-2024-0115-001',
+              priority: 'P1 - Critical',
+              status: 'In Progress',
+              assignee: 'SOC Team Lead',
+              created: '2024-01-15 14:23:30',
+              sla: '4 hours remaining'
+            },
+            stakeholders: [
+              { role: 'CEO', notified: true, acknowledged: false },
+              { role: 'CISO', notified: true, acknowledged: true },
+              { role: 'IT Director', notified: true, acknowledged: true },
+              { role: 'Legal Counsel', notified: false, acknowledged: false }
+            ],
+            reportGeneration: {
+              executiveSummary: 'Ready',
+              technicalDetails: 'In Progress',
+              lessonsLearned: 'Pending',
+              actionItems: 'Draft'
+            },
+            communicationLog: [
+              { time: '14:25', action: 'Initial notification sent', recipient: 'CISO' },
+              { time: '14:30', action: 'Situation update', recipient: 'Executive Team' }
+            ]
+          }
+        };
+      
+      default:
+        return null;
+    }
+  };
 
   // 8단계 구성 데이터
   const getStepData = (stepId: number) => {
@@ -269,6 +504,20 @@ const ScenarioTraining = () => {
     if (isCorrect) {
       setCompletedSteps(prev => [...prev, currentStep]);
     }
+
+    // SOC 도구 인터페이스 표시
+    const toolInterface = getToolInterface(currentStep);
+    if (toolInterface) {
+      setToolLoading(true);
+      setCurrentTool(toolInterface.toolName);
+      
+      // 실제 도구 로딩 시뮬레이션
+      setTimeout(() => {
+        setToolData(toolInterface);
+        setToolLoading(false);
+        setShowToolInterface(true);
+      }, 1500);
+    }
   };
 
   const handleNextStep = () => {
@@ -276,6 +525,9 @@ const ScenarioTraining = () => {
       setCurrentStep(currentStep + 1);
       setShowFeedback(false);
       setIsCorrectAction(false);
+      setShowToolInterface(false);
+      setToolData({});
+      setCurrentTool('');
     } else {
       // 훈련 완료
       setIsTrainingComplete(true);
@@ -287,6 +539,9 @@ const ScenarioTraining = () => {
       setCurrentStep(currentStep - 1);
       setShowFeedback(false);
       setIsCorrectAction(false);
+      setShowToolInterface(false);
+      setToolData({});
+      setCurrentTool('');
     }
   };
 
@@ -518,6 +773,293 @@ const ScenarioTraining = () => {
             {/* 피드백 */}
             {showFeedback && (
               <div className="space-y-6">
+                {/* SOC 도구 로딩 */}
+                {toolLoading && (
+                  <div className="bg-gray-800/50 border border-blue-500/30 rounded-lg p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-400"></div>
+                      <h3 className="text-lg font-bold text-blue-400">SOC 도구 연결 중...</h3>
+                    </div>
+                    <div className="bg-black/50 p-4 rounded-lg font-mono text-sm">
+                      <div className="text-green-400 mb-2">
+                        {'>'} {currentTool} 초기화 중...
+                      </div>
+                      <div className="space-y-1 text-gray-400">
+                        <div>{'>'} 보안 연결 설정...</div>
+                        <div>{'>'} 데이터 동기화...</div>
+                        <div>{'>'} 인터페이스 로딩...</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* SOC 도구 인터페이스 */}
+                {showToolInterface && toolData && (
+                  <div className={`bg-gray-800/50 border border-${toolData.color}-500/30 rounded-lg p-6`}>
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="text-2xl">{toolData.toolIcon}</span>
+                      <h3 className={`text-xl font-bold text-${toolData.color}-400`}>
+                        {toolData.toolName}
+                      </h3>
+                      <div className={`px-2 py-1 bg-${toolData.color}-900/30 text-${toolData.color}-300 text-xs rounded-full`}>
+                        CONNECTED
+                      </div>
+                    </div>
+
+                    {/* 도구별 인터페이스 렌더링 */}
+                    <div className="bg-black/50 p-4 rounded-lg">
+                      {currentStep === 1 && toolData.interface && (
+                        <div className="space-y-4">
+                          <div>
+                            <h4 className="text-purple-300 font-bold mb-2">🚨 Active Alerts</h4>
+                            <div className="space-y-2">
+                              {toolData.interface.alerts?.map((alert: any, idx: number) => (
+                                <div key={idx} className={`p-2 rounded border-l-4 ${
+                                  alert.severity === 'HIGH' ? 'border-red-500 bg-red-900/20' : 'border-yellow-500 bg-yellow-900/20'
+                                }`}>
+                                  <div className="flex justify-between items-center">
+                                    <span className="font-mono text-sm">{alert.process}</span>
+                                    <span className={`px-2 py-1 rounded text-xs ${
+                                      alert.severity === 'HIGH' ? 'bg-red-600 text-white' : 'bg-yellow-600 text-white'
+                                    }`}>
+                                      {alert.severity}
+                                    </span>
+                                  </div>
+                                  <div className="text-gray-300 text-xs mt-1">{alert.action} at {alert.time}</div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <h4 className="text-purple-300 font-bold mb-2">🌳 Process Tree</h4>
+                            <div className="font-mono text-sm text-green-300">
+                              <div>└─ {toolData.interface.processTree?.parent}</div>
+                              {toolData.interface.processTree?.children?.map((child: string, idx: number) => (
+                                <div key={idx} className="ml-4">├─ {child}</div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {currentStep === 2 && toolData.interface && (
+                        <div className="space-y-4">
+                          <div>
+                            <h4 className="text-cyan-300 font-bold mb-2">📊 Query Results</h4>
+                            <div className="grid grid-cols-3 gap-4">
+                              <div className="text-center p-2 bg-gray-700/50 rounded">
+                                <div className="text-2xl font-bold text-green-400">{toolData.interface.searchResults?.emailLogs?.suspicious}</div>
+                                <div className="text-xs text-gray-400">Suspicious Emails</div>
+                              </div>
+                              <div className="text-center p-2 bg-gray-700/50 rounded">
+                                <div className="text-2xl font-bold text-gray-400">{toolData.interface.searchResults?.webLogs?.suspicious}</div>
+                                <div className="text-xs text-gray-400">Web Threats</div>
+                              </div>
+                              <div className="text-center p-2 bg-gray-700/50 rounded">
+                                <div className="text-2xl font-bold text-gray-400">{toolData.interface.searchResults?.usbLogs?.suspicious}</div>
+                                <div className="text-xs text-gray-400">USB Infections</div>
+                              </div>
+                            </div>
+                          </div>
+                          <div>
+                            <h4 className="text-cyan-300 font-bold mb-2">⏰ Timeline Analysis</h4>
+                            <div className="space-y-2">
+                              {toolData.interface.timeline?.map((event: any, idx: number) => (
+                                <div key={idx} className="flex items-center gap-3 p-2 bg-gray-700/30 rounded">
+                                  <span className="font-mono text-xs text-yellow-400">{event.time}</span>
+                                  <span className="text-sm text-green-300">{event.event}</span>
+                                  <span className={`px-2 py-1 rounded text-xs ${
+                                    event.severity === 'CRITICAL' ? 'bg-red-600' : 
+                                    event.severity === 'WARNING' ? 'bg-yellow-600' : 'bg-blue-600'
+                                  } text-white`}>
+                                    {event.severity}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {currentStep === 3 && toolData.interface && (
+                        <div className="space-y-4">
+                          <div>
+                            <h4 className="text-green-300 font-bold mb-2">🗺️ Network Map</h4>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <div className="text-red-400 font-bold mb-2">🔴 Infected Systems</div>
+                                {toolData.interface.networkMap?.infected?.map((system: any, idx: number) => (
+                                  <div key={idx} className="p-2 bg-red-900/20 border border-red-500/30 rounded">
+                                    <div className="font-mono text-sm">{system.name}</div>
+                                    <div className="text-xs text-gray-400">{system.ip}</div>
+                                  </div>
+                                ))}
+                              </div>
+                              <div>
+                                <div className="text-green-400 font-bold mb-2">🟢 Clean Systems</div>
+                                {toolData.interface.networkMap?.clean?.slice(0, 2).map((system: any, idx: number) => (
+                                  <div key={idx} className="p-2 bg-green-900/20 border border-green-500/30 rounded mb-1">
+                                    <div className="font-mono text-sm">{system.name}</div>
+                                    <div className="text-xs text-gray-400">{system.ip}</div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {currentStep === 4 && toolData.interface && (
+                        <div className="space-y-4">
+                          <div>
+                            <h4 className="text-orange-300 font-bold mb-2">🔧 Available Tools</h4>
+                            <div className="grid grid-cols-3 gap-2">
+                              {toolData.interface.availableTools?.map((tool: any, idx: number) => (
+                                <div key={idx} className="p-2 bg-gray-700/50 rounded text-center">
+                                  <div className="font-bold text-sm">{tool.name}</div>
+                                  <div className="text-xs text-gray-400">{tool.purpose}</div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <h4 className="text-orange-300 font-bold mb-2">📦 Evidence Collection Status</h4>
+                            <div className="space-y-2">
+                              <div className="flex justify-between items-center p-2 bg-green-900/20 rounded">
+                                <span>Memory Dump</span>
+                                <span className="text-green-400 font-bold">READY</span>
+                              </div>
+                              <div className="flex justify-between items-center p-2 bg-blue-900/20 rounded">
+                                <span>Chain of Custody</span>
+                                <span className="text-blue-400 font-bold">VERIFIED</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {currentStep === 5 && toolData.interface && (
+                        <div className="space-y-4">
+                          <div>
+                            <h4 className="text-indigo-300 font-bold mb-2">🔍 Threat Analysis</h4>
+                            <div className="p-3 bg-red-900/20 border border-red-500/30 rounded">
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <div className="text-red-400 font-bold">{toolData.interface.threatIntel?.malwareFamily}</div>
+                                  <div className="text-sm text-gray-300">Threat Actor: {toolData.interface.threatIntel?.threatActor}</div>
+                                </div>
+                                <div>
+                                  <div className="text-yellow-400 font-bold">Confidence: {toolData.interface.threatIntel?.confidence}</div>
+                                  <div className="text-sm text-gray-300">Severity: {toolData.interface.threatIntel?.severity}</div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div>
+                            <h4 className="text-indigo-300 font-bold mb-2">🎯 Related IOCs</h4>
+                            <div className="space-y-1">
+                              {toolData.interface.relatedIOCs?.slice(0, 2).map((ioc: any, idx: number) => (
+                                <div key={idx} className="flex justify-between items-center p-2 bg-gray-700/30 rounded">
+                                  <span className="font-mono text-sm">{ioc.value}</span>
+                                  <span className={`px-2 py-1 rounded text-xs ${
+                                    ioc.reputation === 'Malicious' ? 'bg-red-600' : 'bg-yellow-600'
+                                  } text-white`}>
+                                    {ioc.reputation}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {currentStep === 6 && toolData.interface && (
+                        <div className="space-y-4">
+                          <div>
+                            <h4 className="text-red-300 font-bold mb-2">📊 Impact Metrics</h4>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="p-3 bg-red-900/20 rounded">
+                                <div className="text-2xl font-bold text-red-400">{toolData.interface.impactMetrics?.affectedSystems?.count}</div>
+                                <div className="text-sm text-gray-300">Affected Systems</div>
+                              </div>
+                              <div className="p-3 bg-yellow-900/20 rounded">
+                                <div className="text-2xl font-bold text-yellow-400">{toolData.interface.impactMetrics?.encryptedFiles?.count}</div>
+                                <div className="text-sm text-gray-300">Encrypted Files</div>
+                              </div>
+                            </div>
+                          </div>
+                          <div>
+                            <h4 className="text-red-300 font-bold mb-2">🏢 Business Impact</h4>
+                            <div className="p-3 bg-gray-700/30 rounded">
+                              <div className="text-orange-400 font-bold">{toolData.interface.businessImpact?.primaryImpact}</div>
+                              <div className="text-sm text-gray-300 mt-1">{toolData.interface.businessImpact?.secondaryImpact}</div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {currentStep === 7 && toolData.interface && (
+                        <div className="space-y-4">
+                          <div>
+                            <h4 className="text-yellow-300 font-bold mb-2">📋 Recommended Playbooks</h4>
+                            <div className="space-y-2">
+                              {toolData.interface.recommendedPlaybooks?.map((playbook: any, idx: number) => (
+                                <div key={idx} className="p-3 bg-yellow-900/20 border border-yellow-500/30 rounded">
+                                  <div className="flex justify-between items-center">
+                                    <div>
+                                      <div className="font-bold text-yellow-300">{playbook.name}</div>
+                                      <div className="text-sm text-gray-300">{playbook.steps} steps • {playbook.eta}</div>
+                                    </div>
+                                    <div className="text-right">
+                                      <div className="text-green-400 font-bold">{playbook.success_rate}</div>
+                                      <div className="text-xs text-gray-400">Success Rate</div>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {currentStep === 8 && toolData.interface && (
+                        <div className="space-y-4">
+                          <div>
+                            <h4 className="text-blue-300 font-bold mb-2">🎫 Incident Ticket</h4>
+                            <div className="p-3 bg-blue-900/20 border border-blue-500/30 rounded">
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <div className="text-blue-400 font-bold">{toolData.interface.ticketInfo?.ticketID}</div>
+                                  <div className="text-sm text-gray-300">{toolData.interface.ticketInfo?.priority}</div>
+                                </div>
+                                <div>
+                                  <div className="text-green-400 font-bold">{toolData.interface.ticketInfo?.status}</div>
+                                  <div className="text-sm text-gray-300">SLA: {toolData.interface.ticketInfo?.sla}</div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div>
+                            <h4 className="text-blue-300 font-bold mb-2">👥 Stakeholder Notifications</h4>
+                            <div className="space-y-1">
+                              {toolData.interface.stakeholders?.slice(0, 3).map((stakeholder: any, idx: number) => (
+                                <div key={idx} className="flex justify-between items-center p-2 bg-gray-700/30 rounded">
+                                  <span>{stakeholder.role}</span>
+                                  <span className={`px-2 py-1 rounded text-xs ${
+                                    stakeholder.acknowledged ? 'bg-green-600' : 'bg-yellow-600'
+                                  } text-white`}>
+                                    {stakeholder.acknowledged ? 'ACKNOWLEDGED' : 'PENDING'}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 <div className={`p-6 rounded-lg border-2 ${
                   isCorrectAction 
                     ? 'border-green-500 bg-green-900/20' 
