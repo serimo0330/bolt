@@ -38,135 +38,12 @@ const ScenarioTraining = () => {
   const [isTrainingComplete, setIsTrainingComplete] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrectAction, setIsCorrectAction] = useState(false);
-  const [showToolInterface, setShowToolInterface] = useState(false);
-  const [currentTool, setCurrentTool] = useState<string>('');
   
   // 각 단계별 선택 결과 저장
   const [stepChoices, setStepChoices] = useState<{[key: number]: any}>({});
 
   const scenario = scenarioId ? scenarioTrainingData[parseInt(scenarioId)] : null;
   const totalSteps = 8; // 고정된 8단계
-
-  // SOC 도구별 인터페이스 데이터
-  const getToolInterface = (stepId: number) => {
-    switch (stepId) {
-      case 1: // EDR 인터페이스
-        return {
-          toolName: 'EDR Console',
-          toolIcon: <Eye className="w-5 h-5 text-purple-400" />,
-          bgColor: 'bg-purple-900/20 border-purple-500/30',
-          data: {
-            alerts: [
-              { severity: 'HIGH', process: 'ransomware.exe', behavior: 'Mass File Encryption', time: '14:23:17' },
-              { severity: 'MEDIUM', process: 'winword.exe', behavior: 'Spawned Suspicious Process', time: '14:22:15' }
-            ],
-            processTree: 'winword.exe → ransomware.exe → crypto.dll',
-            networkActivity: '203.0.113.45:443 (ESTABLISHED)'
-          }
-        };
-      
-      case 2: // SIEM 인터페이스
-        return {
-          toolName: 'SIEM Query Console',
-          toolIcon: <Database className="w-5 h-5 text-cyan-400" />,
-          bgColor: 'bg-cyan-900/20 border-cyan-500/30',
-          data: {
-            timeline: [
-              '14:20:33 - Email with attachment received',
-              '14:22:15 - invoice.exe executed by user',
-              '14:23:17 - Mass file encryption detected'
-            ],
-            logSources: 'Email: 15건, Web: 0건, USB: 0건',
-            correlation: '이메일 → 파일실행 → 암호화 패턴 확인'
-          }
-        };
-      
-      case 3: // 네트워크 관리 도구
-        return {
-          toolName: 'Network Security Console',
-          toolIcon: <Shield className="w-5 h-5 text-green-400" />,
-          bgColor: 'bg-green-900/20 border-green-500/30',
-          data: {
-            networkStatus: 'FIN-PC-07 연결 상태: ACTIVE',
-            isolationReady: '격리 준비 완료',
-            evidenceTools: 'Memory Dump, Screen Capture 도구 대기 중',
-            riskLevel: '확산 위험: HIGH'
-          }
-        };
-      
-      case 4: // 포렌식 도구
-        return {
-          toolName: 'Digital Forensics Toolkit',
-          toolIcon: <Search className="w-5 h-5 text-yellow-400" />,
-          bgColor: 'bg-yellow-900/20 border-yellow-500/30',
-          data: {
-            memoryDump: '상태: 준비됨 (예상 시간: 3분, 크기: 8GB)',
-            diskImage: '상태: 준비됨 (예상 시간: 45분, 크기: 500GB)',
-            volatilityTools: 'Volatility, FTK Imager 사용 가능',
-            priority: '메모리 덤프 우선 권장'
-          }
-        };
-      
-      case 5: // TIP (위협 인텔리전스)
-        return {
-          toolName: 'Threat Intelligence Platform',
-          toolIcon: <Brain className="w-5 h-5 text-indigo-400" />,
-          bgColor: 'bg-indigo-900/20 border-indigo-500/30',
-          data: {
-            hashQuery: 'a1b2c3d4e5f6789012345678901234567890abcd',
-            result: 'WannaCry 변종 (신뢰도: 85%)',
-            threatActor: 'Lazarus Group 연관성',
-            firstSeen: '2024-01-10 (5일 전 최초 발견)'
-          }
-        };
-      
-      case 6: // SIEM 대시보드 (피해 범위)
-        return {
-          toolName: 'SIEM Impact Dashboard',
-          toolIcon: <Target className="w-5 h-5 text-orange-400" />,
-          bgColor: 'bg-orange-900/20 border-orange-500/30',
-          data: {
-            affectedSystems: '감염 시스템: 1대 (FIN-PC-07)',
-            encryptedFiles: '암호화된 파일: 1,247개',
-            networkSpread: '네트워크 확산: 차단됨',
-            businessImpact: '재무팀 업무 중단 상태'
-          }
-        };
-      
-      case 7: // SOAR 플랫폼
-        return {
-          toolName: 'SOAR Playbook Console',
-          toolIcon: <Zap className="w-5 h-5 text-pink-400" />,
-          bgColor: 'bg-pink-900/20 border-pink-500/30',
-          data: {
-            availablePlaybooks: [
-              '랜섬웨어 대응 (8단계, 15분 소요)',
-              '데이터 유출 대응 (12단계, 30분 소요)',
-              '악성코드 격리 (6단계, 10분 소요)'
-            ],
-            recommendation: '랜섬웨어 대응 플레이북 권장',
-            automation: '반자동 실행 모드'
-          }
-        };
-      
-      case 8: // 티켓 관리 시스템
-        return {
-          toolName: 'Incident Management System',
-          toolIcon: <FileText className="w-5 h-5 text-teal-400" />,
-          bgColor: 'bg-teal-900/20 border-teal-500/30',
-          data: {
-            ticketID: 'INC-2024-0115-001',
-            priority: 'P1 - Critical',
-            assignedTeams: 'SOC, IT지원팀, 법무팀',
-            reportStatus: '경영진 보고서 템플릿 준비됨',
-            notifications: 'CEO, CISO, IT이사 알림 대기'
-          }
-        };
-      
-      default:
-        return null;
-    }
-  };
 
   useEffect(() => {
     if (scenario && !startTime) {
@@ -360,45 +237,38 @@ const ScenarioTraining = () => {
   };
 
   const handleChoice = (choice: any) => {
-    // SOC 도구 인터페이스 표시
-    setShowToolInterface(true);
-    setCurrentTool(getToolInterface(currentStep)?.toolName || '');
-    
-    // 2초 후 결과 처리
-    setTimeout(() => {
-      const stepData = getStepData(currentStep);
-      if (!stepData) return;
+    const stepData = getStepData(currentStep);
+    if (!stepData) return;
 
-      const isCorrect = choice.id === stepData.correctAnswer;
-      setIsCorrectAction(isCorrect);
-      setShowFeedback(true);
+    const isCorrect = choice.id === stepData.correctAnswer;
+    setIsCorrectAction(isCorrect);
+    setShowFeedback(true);
 
-      // 선택 결과 저장
-      const newStepChoices = {
-        ...stepChoices,
-        [currentStep]: {
-          ...choice,
-          isCorrect,
-          timestamp: new Date().toISOString()
-        }
-      };
-      setStepChoices(newStepChoices);
-
-      // 결과 저장
-      const result: StepResult = {
-        stepId: currentStep,
-        status: isCorrect ? 'success' : 'failure',
-        data: choice,
-        timestamp: new Date().toISOString(),
-        score: isCorrect ? 100 : 0
-      };
-
-      setStepResults(prev => [...prev, result]);
-
-      if (isCorrect) {
-        setCompletedSteps(prev => [...prev, currentStep]);
+    // 선택 결과 저장
+    const newStepChoices = {
+      ...stepChoices,
+      [currentStep]: {
+        ...choice,
+        isCorrect,
+        timestamp: new Date().toISOString()
       }
-    }, 2000);
+    };
+    setStepChoices(newStepChoices);
+
+    // 결과 저장
+    const result: StepResult = {
+      stepId: currentStep,
+      status: isCorrect ? 'success' : 'failure',
+      data: choice,
+      timestamp: new Date().toISOString(),
+      score: isCorrect ? 100 : 0
+    };
+
+    setStepResults(prev => [...prev, result]);
+
+    if (isCorrect) {
+      setCompletedSteps(prev => [...prev, currentStep]);
+    }
   };
 
   const handleNextStep = () => {
@@ -406,8 +276,6 @@ const ScenarioTraining = () => {
       setCurrentStep(currentStep + 1);
       setShowFeedback(false);
       setIsCorrectAction(false);
-      setShowToolInterface(false);
-      setCurrentTool('');
     } else {
       // 훈련 완료
       setIsTrainingComplete(true);
@@ -419,8 +287,6 @@ const ScenarioTraining = () => {
       setCurrentStep(currentStep - 1);
       setShowFeedback(false);
       setIsCorrectAction(false);
-      setShowToolInterface(false);
-      setCurrentTool('');
     }
   };
 
@@ -588,43 +454,6 @@ const ScenarioTraining = () => {
         {/* 현재 단계 */}
         {currentStepData && (
           <div className="bg-black/50 backdrop-blur-sm border border-yellow-500/30 rounded-lg p-8 mb-8">
-            {/* SOC 도구 인터페이스 */}
-            {showToolInterface && (
-              <div className="mb-6 animate-fade-in">
-                {(() => {
-                  const toolInterface = getToolInterface(currentStep);
-                  if (!toolInterface) return null;
-                  
-                  return (
-                    <div className={`p-6 rounded-lg border-2 ${toolInterface.bgColor}`}>
-                      <div className="flex items-center gap-3 mb-4">
-                        {toolInterface.toolIcon}
-                        <h3 className="text-xl font-bold text-white">
-                          🔧 {toolInterface.toolName} 실행 중...
-                        </h3>
-                      </div>
-                      
-                      <div className="bg-black/50 p-4 rounded-lg font-mono text-sm">
-                        <div className="text-green-400 mb-2">
-                          > 시스템 분석 중...
-                        </div>
-                        <div className="space-y-1 text-green-200">
-                          {Object.entries(toolInterface.data).map(([key, value]) => (
-                            <div key={key}>
-                              <span className="text-yellow-300">{key}:</span> {Array.isArray(value) ? value.join(' | ') : value}
-                            </div>
-                          ))}
-                        </div>
-                        <div className="text-green-400 mt-2 animate-pulse">
-                          > 분석 완료. 결과를 확인하세요...
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })()}
-              </div>
-            )}
-
             {/* 단계 헤더 */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-4">
@@ -659,7 +488,7 @@ const ScenarioTraining = () => {
             {/* 질문 및 선택지 */}
             {!showFeedback && (
               <div className="space-y-6">
-                <div className={showToolInterface ? 'opacity-50 pointer-events-none' : ''}>
+                <div>
                   <h3 className="text-xl font-bold text-green-300 mb-4">{currentStepData.question}</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {currentStepData.options.map((option) => (
@@ -667,7 +496,6 @@ const ScenarioTraining = () => {
                         key={option.id}
                         onClick={() => handleChoice(option)}
                         className="p-4 rounded-lg border-2 border-gray-600 bg-gray-800/30 hover:border-yellow-400 hover:bg-yellow-900/20 transition-all duration-300 text-left group"
-                        disabled={showToolInterface}
                       >
                         <div className="flex items-start gap-3">
                           <div className="text-2xl">{option.label.split(' ')[0]}</div>
