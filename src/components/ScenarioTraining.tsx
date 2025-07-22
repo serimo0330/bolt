@@ -13,7 +13,12 @@ import {
   User,
   Target,
   Play,
-  Award
+  Award,
+  Brain,
+  Search,
+  FileText,
+  MessageSquare,
+  Lightbulb
 } from 'lucide-react';
 
 const ScenarioTraining = () => {
@@ -28,10 +33,22 @@ const ScenarioTraining = () => {
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrectAction, setIsCorrectAction] = useState(false);
+  const [currentPhase, setCurrentPhase] = useState<'analysis' | 'hypothesis' | 'priority' | 'action'>('analysis');
+  const [analysisAnswers, setAnalysisAnswers] = useState<{[key: string]: any}>({});
+  const [hypothesis, setHypothesis] = useState('');
+  const [riskLevel, setRiskLevel] = useState<number>(1);
+  const [priorityOrder, setPriorityOrder] = useState<string[]>([]);
+  const [reasoning, setReasoning] = useState('');
 
   const scenario = scenarioId ? scenarioTrainingData[parseInt(scenarioId)] : null;
   const currentStepData = scenario?.steps.find(step => step.id === currentStep);
   const totalSteps = scenario?.steps.length || 0;
+  const phaseNames = {
+    analysis: '상황 분석',
+    hypothesis: '가설 수립',
+    priority: '우선순위 결정',
+    action: '행동 선택'
+  };
 
   useEffect(() => {
     if (scenario && !startTime) {
@@ -39,41 +56,40 @@ const ScenarioTraining = () => {
     }
   }, [scenario, startTime]);
 
-  const handleActionSelect = (action: string) => {
-    if (!currentStepData || showFeedback) return;
+  const handlePhaseComplete = () => {
+    if (currentPhase === 'analysis') {
+      setCurrentPhase('hypothesis');
+    } else if (currentPhase === 'hypothesis') {
+      setCurrentPhase('priority');
+    } else if (currentPhase === 'priority') {
+      setCurrentPhase('action');
+    } else {
+      // 최종 평가
+      evaluateStep();
+    }
+  };
 
-    setSelectedAction(action);
-    
-    // 정답 확인 로직
+  const evaluateStep = () => {
     let isCorrect = false;
+    let score = 0;
     
+    // 종합 평가 로직
     switch (currentStep) {
       case 1: // EDR P1 경보 확인
-        isCorrect = action === 'confirm_alert';
+        isCorrect = analysisAnswers.alertType === 'ransomware' && 
+                   hypothesis.includes('랜섬웨어') && 
+                   riskLevel >= 4;
+        score = isCorrect ? 100 : Math.max(0, (riskLevel * 20) + (hypothesis.length > 10 ? 20 : 0));
         break;
       case 2: // 현장 증거 보존
-        isCorrect = action === 'preserve_evidence';
+        isCorrect = analysisAnswers.evidenceType === 'screen_memory' && 
+                   priorityOrder[0] === 'preserve_evidence';
+        score = isCorrect ? 100 : 60;
         break;
-      case 3: // 네트워크 케이블 물리적 분리
-        isCorrect = action === 'disconnect_network';
-        break;
-      case 4: // 메모리 덤프 수집
-        isCorrect = action === 'collect_memory_dump';
-        break;
-      case 5: // SIEM 쿼리 작성
-        isCorrect = action === 'siem_query';
-        break;
-      case 6: // 악성 파일 해시값 TIP 조회
-        isCorrect = action === 'tip_lookup';
-        break;
-      case 7: // 랜섬웨어 초기 대응 플레이북 실행
-        isCorrect = action === 'ransomware_playbook';
-        break;
-      case 8: // 침해사고분석팀 이관
-        isCorrect = action === 'transfer_to_analysis_team';
-        break;
+      // 다른 단계들도 유사하게 구현
       default:
-        isCorrect = false;
+        isCorrect = score >= 70;
+        break;
     }
 
     setIsCorrectAction(isCorrect);
@@ -83,9 +99,16 @@ const ScenarioTraining = () => {
     const result: StepResult = {
       stepId: currentStep,
       status: isCorrect ? 'success' : 'failure',
-      data: { action, timestamp: new Date().toISOString() },
+      data: { 
+        analysisAnswers, 
+        hypothesis, 
+        riskLevel, 
+        priorityOrder, 
+        reasoning,
+        timestamp: new Date().toISOString() 
+      },
       timestamp: new Date().toISOString(),
-      score: isCorrect ? 100 : 0
+      score
     };
 
     setStepResults(prev => [...prev, result]);
@@ -98,7 +121,12 @@ const ScenarioTraining = () => {
   const handleNextStep = () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
-      setSelectedAction(null);
+      setCurrentPhase('analysis');
+      setAnalysisAnswers({});
+      setHypothesis('');
+      setRiskLevel(1);
+      setPriorityOrder([]);
+      setReasoning('');
       setShowFeedback(false);
       setIsCorrectAction(false);
     } else {
@@ -110,96 +138,83 @@ const ScenarioTraining = () => {
   const handlePrevStep = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
+      setCurrentPhase('analysis');
+      setAnalysisAnswers({});
+      setHypothesis('');
+      setRiskLevel(1);
+      setPriorityOrder([]);
+      setReasoning('');
       setSelectedAction(null);
       setShowFeedback(false);
       setIsCorrectAction(false);
     }
   };
 
-  const getStepActions = (stepId: number) => {
+  const getStepContent = (stepId: number) => {
     switch (stepId) {
       case 1:
-        return [
-          { id: 'confirm_alert', label: 'EDR 경보 상세 정보 확인', correct: true },
-          { id: 'ignore_alert', label: '경보 무시하고 다른 업무 진행', correct: false }
-        ];
+        return {
+          situation: "EDR 시스템에서 P1 등급 경보가 발생했습니다.",
+          data: {
+            timestamp: "2024-01-15 14:23:17",
+            system: "FIN-PC-07",
+            process: "ransomware.exe",
+            behavior: "대량 파일 암호화 시도",
+            networkActivity: "외부 IP 203.0.113.45와 통신"
+          },
+          analysisQuestions: [
+            {
+              question: "이 경보의 위협 유형은 무엇입니까?",
+              options: ["랜섬웨어", "스파이웨어", "애드웨어", "정상 프로그램"],
+              correct: "랜섬웨어",
+              key: "alertType"
+            },
+            {
+              question: "가장 우려되는 피해는 무엇입니까?",
+              options: ["데이터 암호화", "정보 유출", "시스템 손상", "네트워크 마비"],
+              correct: "데이터 암호화",
+              key: "primaryConcern"
+            }
+          ],
+          priorityOptions: [
+            "경보 상세 분석",
+            "현장 증거 보존",
+            "네트워크 격리",
+            "상급자 보고"
+          ]
+        };
       case 2:
-        return [
-          { id: 'preserve_evidence', label: 'PC 전원 유지하고 화면 촬영', correct: true },
-          { id: 'shutdown_pc', label: 'PC 전원 즉시 차단', correct: false }
-        ];
-      case 3:
-        return [
-          { id: 'disconnect_network', label: '네트워크 케이블 물리적 분리', correct: true },
-          { id: 'software_block', label: '소프트웨어로 네트워크 차단', correct: false }
-        ];
-      case 4:
-        return [
-          { id: 'collect_memory_dump', label: 'volatility 도구로 메모리 덤프 수집', correct: true },
-          { id: 'reboot_system', label: '시스템 재부팅 후 분석', correct: false }
-        ];
-      case 5:
-        return [
-          { id: 'siem_query', label: 'source="email" AND dest="FIN-PC-07" 쿼리 실행', correct: true },
-          { id: 'web_logs_only', label: '웹 브라우징 로그만 검색', correct: false }
-        ];
-      case 6:
-        return [
-          { id: 'tip_lookup', label: '악성 파일 해시값 TIP 조회 실행', correct: true },
-          { id: 'skip_tip', label: 'TIP 조회 건너뛰고 다음 단계 진행', correct: false }
-        ];
-      case 7:
-        return [
-          { id: 'ransomware_playbook', label: '랜섬웨어 초기 대응 플레이북 실행', correct: true },
-          { id: 'general_malware_playbook', label: '일반 악성코드 대응 플레이북 실행', correct: false }
-        ];
-      case 8:
-        return [
-          { id: 'transfer_to_analysis_team', label: '침해사고분석팀 이관 완료', correct: true },
-          { id: 'self_resolve', label: '자체적으로 해결 시도', correct: false }
-        ];
+        return {
+          situation: "랜섬웨어 감염이 확인된 PC에서 증거를 보존해야 합니다.",
+          data: {
+            screen: "랜섬노트 표시 중",
+            processes: "ransomware.exe, crypto.dll 실행 중",
+            files: "Documents 폴더 암호화 진행 중",
+            memory: "악성 프로세스 메모리 정보 존재"
+          },
+          analysisQuestions: [
+            {
+              question: "가장 중요한 증거는 무엇입니까?",
+              options: ["화면 캡처", "메모리 덤프", "하드디스크 이미지", "네트워크 로그"],
+              correct: "메모리 덤프",
+              key: "evidenceType"
+            }
+          ],
+          priorityOptions: [
+            "화면 캡처",
+            "메모리 덤프 수집",
+            "PC 전원 차단",
+            "네트워크 분리"
+          ]
+        };
       default:
-        return [];
+        return {
+          situation: "단계별 상황 정보",
+          data: {},
+          analysisQuestions: [],
+          priorityOptions: []
+        };
     }
-  };
-
-  const getFeedbackMessage = (stepId: number, isCorrect: boolean) => {
-    const messages = {
-      1: {
-        success: "✅ 경보 확인 완료. FIN-PC-07에서 WannaCry 변종 탐지됨",
-        failure: "❌ 경보를 먼저 확인해주세요"
-      },
-      2: {
-        success: "✅ 증거 보존 완료. 랜섬노트 화면 캡처됨",
-        failure: "❌ 전원을 끄면 메모리 증거가 손실됩니다"
-      },
-      3: {
-        success: "✅ 네트워크 격리 완료. 랜섬웨어 확산 차단됨",
-        failure: "❌ 네트워크 연결 상태에서는 확산 위험이 있습니다"
-      },
-      4: {
-        success: "✅ 메모리 덤프 수집 완료. 악성 프로세스 정보 확보됨",
-        failure: "❌ 메모리 덤프 수집이 필요합니다"
-      },
-      5: {
-        success: "✅ 감염 경로 확인. 이메일 첨부파일을 통한 감염으로 판단됨",
-        failure: "❌ 올바른 쿼리를 작성해주세요"
-      },
-      6: {
-        success: "✅ 악성 파일 확인. WannaCry 변종으로 식별됨",
-        failure: "❌ 해시값을 정확히 입력해주세요"
-      },
-      7: {
-        success: "✅ 랜섬웨어 초기 대응 플레이북 실행 완료",
-        failure: "❌ 올바른 플레이북을 선택해주세요"
-      },
-      8: {
-        success: "✅ 침해사고분석팀 이관 완료. 심층 분석 시작됨",
-        failure: "❌ 이관 절차를 완료해주세요"
-      }
-    };
-
-    return messages[stepId as keyof typeof messages]?.[isCorrect ? 'success' : 'failure'] || '';
   };
 
   if (!scenario) {
@@ -342,63 +357,254 @@ const ScenarioTraining = () => {
         {/* 현재 단계 */}
         {currentStepData && (
           <div className="bg-black/50 backdrop-blur-sm border border-yellow-500/30 rounded-lg p-8 mb-8">
-            <div className="flex items-center gap-3 mb-6">
+            {/* 단계 헤더 */}
+            <div className="flex items-center justify-between mb-6">
               <div className="bg-yellow-500 text-black rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg">
                 {currentStep}
               </div>
-              <div>
+              <div className="flex-1 ml-4">
                 <h2 className="text-2xl font-bold text-yellow-400">{currentStepData.title}</h2>
                 <p className="text-green-200 text-lg mt-2">{currentStepData.description}</p>
               </div>
+              <div className="text-right">
+                <div className="text-sm text-cyan-400 mb-1">현재 단계</div>
+                <div className="text-lg font-bold text-cyan-300">{phaseNames[currentPhase]}</div>
+              </div>
             </div>
 
-            {/* 액션 선택 */}
-            <div className="space-y-4 mb-6">
-              {getStepActions(currentStep).map((action) => (
-                <button
-                  key={action.id}
-                  onClick={() => handleActionSelect(action.id)}
-                  disabled={showFeedback}
-                  className={`w-full text-left p-4 rounded-lg border-2 transition-all duration-300 ${
-                    showFeedback
-                      ? action.correct
-                        ? 'border-green-500 bg-green-900/30 text-green-300'
-                        : selectedAction === action.id
-                        ? 'border-red-500 bg-red-900/30 text-red-300'
-                        : 'border-gray-600 bg-gray-800/30 text-gray-400'
-                      : selectedAction === action.id
-                      ? 'border-yellow-400 bg-yellow-900/20 text-yellow-300'
-                      : 'border-gray-600 bg-gray-800/30 hover:border-yellow-400 hover:bg-yellow-900/20'
-                  } disabled:cursor-not-allowed`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span>{action.label}</span>
-                    {showFeedback && action.correct && (
-                      <CheckCircle className="w-5 h-5 text-green-400" />
-                    )}
-                    {showFeedback && selectedAction === action.id && !action.correct && (
-                      <XCircle className="w-5 h-5 text-red-400" />
-                    )}
+            {/* 단계별 콘텐츠 */}
+            {!showFeedback && (
+              <div className="space-y-6">
+                {/* 1단계: 상황 분석 */}
+                {currentPhase === 'analysis' && (
+                  <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <Search className="w-6 h-6 text-blue-400" />
+                      <h3 className="text-xl font-bold text-blue-400">1단계: 상황 분석</h3>
+                    </div>
+                    
+                    {/* 상황 정보 */}
+                    <div className="mb-6">
+                      <h4 className="text-lg font-bold text-cyan-400 mb-3">📊 수집된 정보</h4>
+                      <div className="bg-gray-800/50 p-4 rounded-lg">
+                        <p className="text-green-200 mb-3">{getStepContent(currentStep).situation}</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                          {Object.entries(getStepContent(currentStep).data).map(([key, value]) => (
+                            <div key={key} className="flex justify-between">
+                              <span className="text-yellow-300">{key}:</span>
+                              <span className="text-green-200">{value}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 분석 질문들 */}
+                    <div className="space-y-4">
+                      {getStepContent(currentStep).analysisQuestions.map((q, index) => (
+                        <div key={index} className="mb-4">
+                          <p className="text-green-300 font-bold mb-3">{q.question}</p>
+                          <div className="grid grid-cols-2 gap-3">
+                            {q.options.map((option) => (
+                              <button
+                                key={option}
+                                onClick={() => setAnalysisAnswers({...analysisAnswers, [q.key]: option})}
+                                className={`p-3 rounded-lg border-2 transition-all duration-300 ${
+                                  analysisAnswers[q.key] === option
+                                    ? 'border-blue-400 bg-blue-900/30 text-blue-300'
+                                    : 'border-gray-600 bg-gray-800/30 hover:border-blue-400'
+                                }`}
+                              >
+                                {option}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </button>
-              ))}
-            </div>
+                )}
+
+                {/* 2단계: 가설 수립 */}
+                {currentPhase === 'hypothesis' && (
+                  <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <Lightbulb className="w-6 h-6 text-purple-400" />
+                      <h3 className="text-xl font-bold text-purple-400">2단계: 가설 수립</h3>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-green-300 font-bold mb-3">
+                          💭 현재 상황에 대한 당신의 가설을 서술하세요:
+                        </label>
+                        <textarea
+                          value={hypothesis}
+                          onChange={(e) => setHypothesis(e.target.value)}
+                          placeholder="예: 이것은 WannaCry 계열의 랜섬웨어로 보이며, 이메일 첨부파일을 통해 감염된 것으로 추정됩니다..."
+                          className="w-full h-24 p-4 bg-gray-800 border-2 border-gray-600 rounded-lg text-green-300 
+                                   focus:border-purple-400 focus:outline-none resize-none"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-green-300 font-bold mb-3">
+                          ⚠️ 위험도 평가 (1-5점):
+                        </label>
+                        <div className="flex gap-2">
+                          {[1, 2, 3, 4, 5].map((level) => (
+                            <button
+                              key={level}
+                              onClick={() => setRiskLevel(level)}
+                              className={`w-12 h-12 rounded-lg border-2 font-bold transition-all duration-300 ${
+                                riskLevel === level
+                                  ? level >= 4 
+                                    ? 'border-red-400 bg-red-900/30 text-red-300'
+                                    : level >= 3
+                                    ? 'border-yellow-400 bg-yellow-900/30 text-yellow-300'
+                                    : 'border-green-400 bg-green-900/30 text-green-300'
+                                  : 'border-gray-600 bg-gray-800/30 hover:border-purple-400'
+                              }`}
+                            >
+                              {level}
+                            </button>
+                          ))}
+                        </div>
+                        <p className="text-sm text-gray-400 mt-2">
+                          1: 매우 낮음 | 2: 낮음 | 3: 보통 | 4: 높음 | 5: 매우 높음
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 3단계: 우선순위 결정 */}
+                {currentPhase === 'priority' && (
+                  <div className="bg-orange-900/20 border border-orange-500/30 rounded-lg p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <Target className="w-6 h-6 text-orange-400" />
+                      <h3 className="text-xl font-bold text-orange-400">3단계: 우선순위 결정</h3>
+                    </div>
+                    
+                    <div>
+                      <p className="text-green-300 font-bold mb-4">
+                        📋 다음 작업들을 중요도 순으로 드래그하여 정렬하세요:
+                      </p>
+                      <div className="space-y-3">
+                        {getStepContent(currentStep).priorityOptions.map((option, index) => (
+                          <div
+                            key={option}
+                            draggable
+                            className="p-4 bg-gray-800/50 border-2 border-gray-600 rounded-lg cursor-move
+                                     hover:border-orange-400 transition-all duration-300"
+                          >
+                            <div className="flex items-center gap-3">
+                              <span className="w-6 h-6 bg-orange-500 text-black rounded-full flex items-center justify-center text-sm font-bold">
+                                {index + 1}
+                              </span>
+                              <span className="text-green-200">{option}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 4단계: 행동 선택 */}
+                {currentPhase === 'action' && (
+                  <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <Play className="w-6 h-6 text-green-400" />
+                      <h3 className="text-xl font-bold text-green-400">4단계: 행동 선택</h3>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-green-300 font-bold mb-3">
+                          🎯 최종 행동 계획을 서술하세요:
+                        </label>
+                        <textarea
+                          value={reasoning}
+                          onChange={(e) => setReasoning(e.target.value)}
+                          placeholder="예: 1) 즉시 화면 캡처 후 메모리 덤프 수집, 2) 네트워크 케이블 물리적 분리, 3) 상급자 보고..."
+                          className="w-full h-32 p-4 bg-gray-800 border-2 border-gray-600 rounded-lg text-green-300 
+                                   focus:border-green-400 focus:outline-none resize-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 단계 완료 버튼 */}
+                <div className="text-center">
+                  <button
+                    onClick={handlePhaseComplete}
+                    disabled={
+                      (currentPhase === 'analysis' && getStepContent(currentStep).analysisQuestions.some(q => !analysisAnswers[q.key])) ||
+                      (currentPhase === 'hypothesis' && (hypothesis.length < 10 || riskLevel === 1)) ||
+                      (currentPhase === 'priority' && priorityOrder.length === 0) ||
+                      (currentPhase === 'action' && reasoning.length < 20)
+                    }
+                    className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 border-2 border-blue-400 
+                             rounded-lg text-white font-bold text-lg hover:from-blue-500 hover:to-blue-600 
+                             disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+                  >
+                    {currentPhase === 'action' ? '최종 평가 받기' : '다음 단계로'}
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* 피드백 */}
             {showFeedback && (
-              <div className={`p-4 rounded-lg border-2 mb-6 ${
-                isCorrectAction 
-                  ? 'border-green-500 bg-green-900/20' 
-                  : 'border-red-500 bg-red-900/20'
-              }`}>
-                <p className={`font-bold ${isCorrectAction ? 'text-green-300' : 'text-red-300'}`}>
-                  {getFeedbackMessage(currentStep, isCorrectAction)}
-                </p>
+              <div className="space-y-6">
+                {/* 종합 평가 */}
+                <div className={`p-6 rounded-lg border-2 ${
+                  isCorrectAction 
+                    ? 'border-green-500 bg-green-900/20' 
+                    : 'border-orange-500 bg-orange-900/20'
+                }`}>
+                  <div className="flex items-center gap-3 mb-4">
+                    <Brain className="w-6 h-6 text-yellow-400" />
+                    <h3 className="text-xl font-bold text-yellow-400">종합 평가</h3>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h4 className="text-lg font-bold text-cyan-400 mb-3">📊 당신의 분석</h4>
+                      <div className="space-y-2 text-sm">
+                        <div><span className="text-yellow-300">상황 분석:</span> <span className="text-green-200">{JSON.stringify(analysisAnswers)}</span></div>
+                        <div><span className="text-yellow-300">가설:</span> <span className="text-green-200">{hypothesis}</span></div>
+                        <div><span className="text-yellow-300">위험도:</span> <span className="text-green-200">{riskLevel}/5</span></div>
+                        <div><span className="text-yellow-300">행동 계획:</span> <span className="text-green-200">{reasoning}</span></div>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h4 className="text-lg font-bold text-green-400 mb-3">✅ 전문가 평가</h4>
+                      <div className="space-y-2 text-sm">
+                        <div className={`p-3 rounded-lg ${isCorrectAction ? 'bg-green-900/30' : 'bg-orange-900/30'}`}>
+                          <p className={`font-bold ${isCorrectAction ? 'text-green-300' : 'text-orange-300'}`}>
+                            {isCorrectAction ? '✅ 우수한 분석입니다!' : '⚠️ 개선이 필요합니다'}
+                          </p>
+                          <p className="text-green-200 mt-2">
+                            {isCorrectAction 
+                              ? '위협을 정확히 식별하고 적절한 대응 방안을 수립했습니다.'
+                              : '일부 분석이 부족하거나 우선순위 설정에 개선이 필요합니다.'
+                            }
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
             {/* 네비게이션 버튼 */}
-            <div className="flex justify-between">
+            {showFeedback && (
+              <div className="flex justify-between mt-6">
               <button
                 onClick={handlePrevStep}
                 disabled={currentStep === 1}
@@ -408,7 +614,6 @@ const ScenarioTraining = () => {
                 이전 단계
               </button>
 
-              {showFeedback && (
                 <button
                   onClick={handleNextStep}
                   className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-300"
@@ -417,8 +622,8 @@ const ScenarioTraining = () => {
                   {currentStep < totalSteps && <ArrowLeft className="w-5 h-5 rotate-180" />}
                   {currentStep === totalSteps && <Award className="w-5 h-5" />}
                 </button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         )}
       </div>
