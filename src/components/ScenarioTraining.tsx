@@ -1562,29 +1562,11 @@ const ScenarioTraining = () => {
         ) : (
           /* 단계별 훈련 화면 */
           <div className="max-w-6xl mx-auto">
-            {/* 상단 정보 바 */}
-            <div className="bg-black/50 backdrop-blur-sm border border-yellow-500/30 rounded-lg p-4 mb-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <h1 className="text-2xl font-bold text-yellow-400">
-                    시나리오 {scenario.id}: {scenario.title}
-                  </h1>
-                  <span className={`px-3 py-1 rounded-lg border font-bold ${getPriorityColor(scenario.priority)}`}>
-                    {scenario.priority} 긴급
-                  </span>
-                  <span className="text-cyan-400">역할: {scenario.role}</span>
-                </div>
-                <div className="text-green-400 font-bold">
-                  점수: {score} / 800
-                </div>
-              </div>
-            </div>
-
             {/* 진행 상황 */}
-            <div className="bg-black/50 backdrop-blur-sm border border-cyan-500/30 rounded-lg p-6 mb-8">
+            <div className="bg-black/50 backdrop-blur-sm border border-blue-500/30 rounded-lg p-4 mb-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-cyan-400">진행 상황</h3>
-                <span className="text-cyan-300">{currentStep} / 8</span>
+                <h2 className="text-xl font-bold text-blue-400">진행 상황</h2>
+                <span className="text-blue-400 font-bold">{currentStep} / 8</span>
               </div>
               <div className="flex gap-2">
                 {Array.from({ length: 8 }, (_, i) => (
