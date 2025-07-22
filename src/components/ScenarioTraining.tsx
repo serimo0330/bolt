@@ -75,6 +75,12 @@ const ScenarioTraining = () => {
   const [showHint, setShowHint] = useState(false);
   const [attemptCount, setAttemptCount] = useState(0);
 
+  useEffect(() => {
+    // 컴포넌트 마운트 시 즉시 훈련 시작
+    setIsStarted(true);
+    addChatMessage("상황실장: 훈련을 시작합니다. 첫 번째 단계를 진행하세요.");
+  }, []);
+
   // 8단계 데이터 정의
   const trainingSteps: StepData[] = [
     // 시나리오별 단계 데이터
@@ -399,11 +405,6 @@ const ScenarioTraining = () => {
       default: 
         return 'text-gray-400 bg-gray-900/30 border-gray-500';
     }
-  };
-
-  const handleStartTraining = () => {
-    setIsStarted(true);
-    addChatMessage("상황실장: 훈련을 시작합니다. 첫 번째 단계를 진행하세요.");
   };
 
   const addChatMessage = (message: string) => {
@@ -1218,47 +1219,23 @@ const ScenarioTraining = () => {
           </div>
         </div>
 
-        {/* 상황 브리핑 (간단한 형태) */}
-        <div className="bg-black/50 backdrop-blur-sm border-2 border-red-500/50 rounded-lg p-6 mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <AlertTriangle className="w-6 h-6 text-red-400" />
-            <h2 className="text-2xl font-bold text-red-400">🚨 {scenario.title}</h2>
-            <span className="px-3 py-1 bg-red-900/50 border border-red-500 rounded-lg text-red-300 text-sm font-bold">
-              P{scenario.priority.slice(1)} 긴급
-            </span>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-blue-400" />
-              <span className="text-blue-300">역할: {scenario.role}</span>
+        {/* 간단한 상황 정보 */}
+        <div className="mb-6">
+          <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
+            <div className="flex items-center gap-3 mb-2">
+              <AlertTriangle className="w-5 h-5 text-red-400" />
+              <span className="text-red-400 font-bold text-lg">{scenario.title}</span>
+              <span className={`px-2 py-1 rounded text-xs font-bold ${getPriorityColor(scenario.priority)}`}>
+                {scenario.priority}
+              </span>
             </div>
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-green-400" />
-              <span className="text-green-300">골든타임: 10분</span>
-            </div>
+            <p className="text-green-200 text-sm">
+              {scenario.situation}
+            </p>
           </div>
-          
-          <p className="text-green-200 leading-relaxed">
-            {scenario.situation}
-          </p>
         </div>
 
-        {!isStarted ? (
-          /* 시작 전 화면 */
-          <div className="text-center">
-            <button
-              onClick={handleStartTraining}
-              className="px-12 py-6 bg-gradient-to-r from-red-600 to-red-700 
-                       border-2 border-red-400 rounded-lg text-white font-bold text-2xl
-                       hover:from-red-500 hover:to-red-600 hover:border-red-300
-                       transform hover:scale-105 transition-all duration-300
-                       shadow-lg hover:shadow-red-500/25"
-            >
-              🎯 초동대응 시작
-            </button>
-          </div>
-        ) : isCompleted ? (
+        {isCompleted ? (
           /* 완료 화면 */
           <div className="max-w-4xl mx-auto text-center">
             <div className="text-6xl mb-8">🎯</div>
