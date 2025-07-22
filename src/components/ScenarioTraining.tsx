@@ -1581,10 +1581,10 @@ const ScenarioTraining = () => {
             </div>
 
             {/* 진행 상황 */}
-            <div className="bg-black/50 backdrop-blur-sm border border-blue-500/30 rounded-lg p-4 mb-6">
+            <div className="bg-black/50 backdrop-blur-sm border border-cyan-500/30 rounded-lg p-6 mb-8">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-blue-400">진행 상황</h2>
-                <span className="text-blue-400 font-bold">{currentStep} / 8</span>
+                <h3 className="text-xl font-bold text-cyan-400">진행 상황</h3>
+                <span className="text-cyan-300">{currentStep} / 8</span>
               </div>
               <div className="flex gap-2">
                 {Array.from({ length: 8 }, (_, i) => (
