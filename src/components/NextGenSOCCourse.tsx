@@ -230,27 +230,16 @@ const NextGenSOCCourse = () => {
                       </div>
 
                       {/* 상황 정보 */}
-                      <div className="mb-4">
-                        <h4 className="text-green-400 font-bold mb-2">상황 정보:</h4>
-                        <p className="text-green-200 text-sm leading-relaxed">
-                          {scenario.situation}
-                        </p>
-                      </div>
-
-                      {/* 대응 흐름 */}
-                      <div className="mb-4">
-                        <h4 className="text-blue-400 font-bold mb-2">AI 기반 대응 흐름:</h4>
-                        <p className="text-green-200 text-sm leading-relaxed">
-                          {scenario.flow}
-                        </p>
-                      </div>
-
-                      {/* 대응 결과 */}
+                      {/* 간단한 설명 */}
                       <div className="mb-6">
-                        <h4 className="text-purple-400 font-bold mb-2">대응 결과:</h4>
                         <p className="text-green-200 text-sm leading-relaxed">
-                          {scenario.result}
+                          {scenario.situation.length > 100 
+                            ? `${scenario.situation.substring(0, 100)}...` 
+                            : scenario.situation}
                         </p>
+                        <div className="mt-3 text-xs text-gray-400">
+                          💡 AI 기반 상세 분석은 훈련 시작 후 공개됩니다
+                        </div>
                       </div>
 
                       {/* 시작 버튼 */}
