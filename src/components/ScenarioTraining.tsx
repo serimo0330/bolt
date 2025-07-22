@@ -629,6 +629,236 @@ const ScenarioTraining = () => {
           </div>
         )}
 
+        {/* 2단계: 현장 증거 보존 */}
+        {currentStep === 2 && (
+          <div className="bg-black/50 backdrop-blur-sm border border-yellow-500/30 rounded-lg p-6 mb-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 bg-yellow-500 text-black rounded-full flex items-center justify-center font-bold">
+                2
+              </div>
+              <h3 className="text-2xl font-bold text-yellow-400">현장 증거 보존</h3>
+            </div>
+            <p className="text-green-200 text-lg mb-6">
+              PC 전원을 유지하고 화면을 촬영하세요. 랜섬노트 화면과 실행 중인 프로세스 정보를 보존해야 합니다.
+            </p>
+            <div className="space-y-4">
+              <button
+                onClick={() => handleStepAction('confirm', { evidenceType: 'screen_capture', location: 'FIN-PC-07' })}
+                className="w-full p-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-left"
+              >
+                📸 화면 캡처 및 증거 보존 완료
+              </button>
+              <button
+                onClick={() => handleStepAction('wrong', {})}
+                className="w-full p-4 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-left"
+              >
+                🔌 PC 전원 차단 (잘못된 선택)
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* 3단계: 네트워크 케이블 물리적 분리 */}
+        {currentStep === 3 && (
+          <div className="bg-black/50 backdrop-blur-sm border border-yellow-500/30 rounded-lg p-6 mb-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 bg-yellow-500 text-black rounded-full flex items-center justify-center font-bold">
+                3
+              </div>
+              <h3 className="text-2xl font-bold text-yellow-400">네트워크 케이블 물리적 분리</h3>
+            </div>
+            <p className="text-green-200 text-lg mb-6">
+              감염 확산 방지를 위해 네트워크 케이블을 분리하세요. 랜섬웨어가 다른 시스템으로 확산되는 것을 막아야 합니다.
+            </p>
+            <div className="space-y-4">
+              <button
+                onClick={() => handleStepAction('confirm', { isolationType: 'physical_disconnect', status: 'isolated' })}
+                className="w-full p-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-left"
+              >
+                🔌 네트워크 케이블 물리적 분리
+              </button>
+              <button
+                onClick={() => handleStepAction('wrong', {})}
+                className="w-full p-4 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-left"
+              >
+                💻 소프트웨어로 네트워크 차단 (잘못된 선택)
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* 4단계: 메모리 덤프 수집 */}
+        {currentStep === 4 && (
+          <div className="bg-black/50 backdrop-blur-sm border border-yellow-500/30 rounded-lg p-6 mb-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 bg-yellow-500 text-black rounded-full flex items-center justify-center font-bold">
+                4
+              </div>
+              <h3 className="text-2xl font-bold text-yellow-400">메모리 덤프 수집</h3>
+            </div>
+            <p className="text-green-200 text-lg mb-6">
+              volatility 도구를 사용하여 메모리 덤프를 수집하세요. 악성 프로세스 정보를 확보해야 합니다.
+            </p>
+            <div className="space-y-4">
+              <button
+                onClick={() => handleStepAction('confirm', { dumpFile: 'FIN-PC-07_memory_dump.raw', size: '8GB' })}
+                className="w-full p-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-left"
+              >
+                💾 메모리 덤프 수집 실행
+              </button>
+              <button
+                onClick={() => handleStepAction('wrong', {})}
+                className="w-full p-4 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-left"
+              >
+                🔄 시스템 재부팅 (잘못된 선택)
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* 5단계: SIEM 쿼리 작성하여 최초 감염 경로 추적 */}
+        {currentStep === 5 && (
+          <div className="bg-black/50 backdrop-blur-sm border border-yellow-500/30 rounded-lg p-6 mb-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 bg-yellow-500 text-black rounded-full flex items-center justify-center font-bold">
+                5
+              </div>
+              <h3 className="text-2xl font-bold text-yellow-400">SIEM 쿼리 작성하여 최초 감염 경로 추적</h3>
+            </div>
+            <p className="text-green-200 text-lg mb-6">
+              SIEM에서 FIN-PC-07의 최초 감염 경로를 추적하세요. 이메일, 웹 접속 등의 로그를 분석해야 합니다.
+            </p>
+            <div className="space-y-4">
+              <button
+                onClick={() => handleStepAction('query', { 
+                  query: 'source="email" AND dest="FIN-PC-07" AND attachment="*.exe"',
+                  result: '악성 이메일 첨부파일 (invoice.exe) 실행'
+                })}
+                className="w-full p-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-left"
+              >
+                🔍 이메일 첨부파일 관련 로그 검색
+              </button>
+              <button
+                onClick={() => handleStepAction('wrong', {})}
+                className="w-full p-4 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-left"
+              >
+                🌐 웹 브라우징 로그만 검색 (불완전한 분석)
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* 6단계: 악성 파일 해시값 TIP 조회 */}
+        {currentStep === 6 && (
+          <div className="bg-black/50 backdrop-blur-sm border border-yellow-500/30 rounded-lg p-6 mb-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 bg-yellow-500 text-black rounded-full flex items-center justify-center font-bold">
+                6
+              </div>
+              <h3 className="text-2xl font-bold text-yellow-400">악성 파일 해시값 TIP 조회</h3>
+            </div>
+            <p className="text-green-200 text-lg mb-6">
+              수집된 악성 파일의 해시값을 TIP에서 조회하세요. 랜섬웨어 변종을 식별해야 합니다.
+            </p>
+            <div className="bg-gray-800 p-4 rounded-lg mb-4">
+              <p className="text-cyan-400 font-mono text-sm">
+                파일 해시: a1b2c3d4e5f6789012345678901234567890abcd
+              </p>
+            </div>
+            <div className="space-y-4">
+              <button
+                onClick={() => handleStepAction('input', { 
+                  fileHash: 'a1b2c3d4e5f6789012345678901234567890abcd',
+                  malwareFamily: 'WannaCry 변종'
+                })}
+                className="w-full p-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-left"
+              >
+                🔍 해시값 TIP 조회 실행
+              </button>
+              <button
+                onClick={() => handleStepAction('wrong', {})}
+                className="w-full p-4 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-left"
+              >
+                ⏭️ TIP 조회 건너뛰기 (잘못된 선택)
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* 7단계: 랜섬웨어 초기 대응 플레이북 실행 */}
+        {currentStep === 7 && (
+          <div className="bg-black/50 backdrop-blur-sm border border-yellow-500/30 rounded-lg p-6 mb-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 bg-yellow-500 text-black rounded-full flex items-center justify-center font-bold">
+                7
+              </div>
+              <h3 className="text-2xl font-bold text-yellow-400">랜섬웨어 초기 대응 플레이북 실행</h3>
+            </div>
+            <p className="text-green-200 text-lg mb-6">
+              적절한 대응 플레이북을 선택하고 실행하세요. 상황에 맞는 표준 대응 절차를 따라야 합니다.
+            </p>
+            <div className="space-y-4">
+              <button
+                onClick={() => handleStepAction('select', { 
+                  playbookName: '랜섬웨어 초기 대응',
+                  actions: ['격리', '백업 확인', '복구 준비']
+                })}
+                className="w-full p-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-left"
+              >
+                📋 랜섬웨어 초기 대응 플레이북 실행
+              </button>
+              <button
+                onClick={() => handleStepAction('wrong', {})}
+                className="w-full p-4 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-left"
+              >
+                📋 일반 악성코드 대응 플레이북 실행 (잘못된 선택)
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* 8단계: 침해사고분석팀 이관 */}
+        {currentStep === 8 && (
+          <div className="bg-black/50 backdrop-blur-sm border border-yellow-500/30 rounded-lg p-6 mb-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 bg-yellow-500 text-black rounded-full flex items-center justify-center font-bold">
+                8
+              </div>
+              <h3 className="text-2xl font-bold text-yellow-400">침해사고분석팀 이관</h3>
+            </div>
+            <p className="text-green-200 text-lg mb-6">
+              수집된 증거와 분석 결과를 침해사고분석팀에 이관하세요. 심층 분석을 위한 모든 자료를 전달해야 합니다.
+            </p>
+            <div className="bg-gray-800 p-4 rounded-lg mb-4">
+              <h4 className="text-cyan-400 font-bold mb-2">이관 자료 목록:</h4>
+              <ul className="text-green-200 text-sm space-y-1">
+                <li>• 메모리 덤프 파일 (FIN-PC-07_memory_dump.raw)</li>
+                <li>• 악성 파일 샘플 (ransomware.exe)</li>
+                <li>• 감염 경로 분석 결과</li>
+                <li>• 화면 캡처 이미지</li>
+              </ul>
+            </div>
+            <div className="space-y-4">
+              <button
+                onClick={() => handleStepAction('confirm', { 
+                  transferredData: ['메모리 덤프', '악성 파일', '감염 경로 분석'],
+                  assignedTeam: '침해사고분석팀',
+                  ticketNumber: 'INC-2024-0115-001'
+                })}
+                className="w-full p-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-left"
+              >
+                📤 침해사고분석팀 이관 완료
+              </button>
+              <button
+                onClick={() => handleStepAction('wrong', {})}
+                className="w-full p-4 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-left"
+              >
+                ✋ 자체 해결 시도 (잘못된 선택)
+              </button>
+            </div>
+          </div>
+        )}
+
         {currentStep === 2 && (
           <div className="space-y-4">
             {selectedItem && (
