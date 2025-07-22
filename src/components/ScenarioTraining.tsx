@@ -271,6 +271,113 @@ const ScenarioTraining = () => {
     }
   };
 
+  // SOC 도구 정보 가져오기
+  const getSOCTool = (stepId: number) => {
+    if (!scenarioId || parseInt(scenarioId) !== 1) return null;
+    
+    const tools = {
+      1: {
+        name: "CrowdStrike Falcon EDR",
+        type: "EDR Console",
+        color: "purple",
+        icon: "🖥️",
+        data: {
+          processName: "ransomware.exe",
+          pid: "4892",
+          parentProcess: "explorer.exe",
+          networkConnections: "203.0.113.45:443",
+          fileActivity: "1,247 files encrypted"
+        }
+      },
+      2: {
+        name: "Splunk Enterprise Security",
+        type: "SIEM Query Console",
+        color: "cyan",
+        icon: "📊",
+        data: {
+          query: 'source="email" AND dest="FIN-PC-07" AND attachment="*.exe"',
+          results: "1 event found",
+          sourceIP: "203.0.113.45",
+          timestamp: "2024-01-15 14:20:15"
+        }
+      },
+      3: {
+        name: "Cisco ISE Network Access Control",
+        type: "Network Security Console",
+        color: "green",
+        icon: "🌐",
+        data: {
+          deviceName: "FIN-PC-07",
+          macAddress: "00:1B:44:11:3A:B7",
+          isolationStatus: "QUARANTINED",
+          vlan: "ISOLATION_VLAN_100"
+        }
+      },
+      4: {
+        name: "Volatility Memory Analysis",
+        type: "Digital Forensics Toolkit",
+        color: "purple",
+        icon: "🔍",
+        data: {
+          dumpFile: "FIN-PC-07_memory.raw",
+          size: "8.0 GB",
+          maliciousProcesses: "2 detected",
+          artifacts: "Encryption keys, C2 communications"
+        }
+      },
+      5: {
+        name: "MISP Threat Intelligence",
+        type: "Threat Intelligence Platform",
+        color: "yellow",
+        icon: "🧠",
+        data: {
+          fileHash: "a1b2c3d4e5f6789012345678901234567890abcd",
+          threatFamily: "WannaCry Variant",
+          firstSeen: "2024-01-10",
+          confidence: "High (85%)"
+        }
+      },
+      6: {
+        name: "IBM QRadar Security Intelligence",
+        type: "SIEM Impact Dashboard",
+        color: "orange",
+        icon: "📈",
+        data: {
+          affectedAssets: "1 endpoint",
+          riskScore: "9.2/10",
+          businessImpact: "High",
+          containmentStatus: "Isolated"
+        }
+      },
+      7: {
+        name: "Phantom SOAR Platform",
+        type: "SOAR Playbook Console",
+        color: "blue",
+        icon: "⚡",
+        data: {
+          playbookName: "Ransomware Initial Response",
+          status: "Executing",
+          completedActions: "5/8",
+          nextAction: "Evidence Collection"
+        }
+      },
+      8: {
+        name: "ServiceNow Security Incident Response",
+        type: "Incident Management System",
+        color: "indigo",
+        icon: "📋",
+        data: {
+          ticketNumber: "INC-2024-0115-001",
+          assignedTeam: "Incident Analysis Team",
+          priority: "P1 - Critical",
+          status: "Transferred"
+        }
+      }
+    };
+    
+    return tools[stepId] || null;
+  };
+
   const handleNextStep = () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
