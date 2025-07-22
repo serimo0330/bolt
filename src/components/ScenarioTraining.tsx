@@ -488,15 +488,18 @@ const ScenarioTraining = () => {
                     
                     <div>
                       <p className="text-green-300 font-bold mb-4">
-                        📋 다음 작업들을 중요도 순으로 드래그하여 정렬하세요:
+                        🎯 현재 상황에서 가장 먼저 해야 할 일은 무엇입니까?
                       </p>
-                      <div className="space-y-3">
+                      <div className="grid grid-cols-1 gap-3">
                         {getStepContent(currentStep).priorityOptions.map((option, index) => (
-                          <div
+                          <button
                             key={option}
-                            draggable
-                            className="p-4 bg-gray-800/50 border-2 border-gray-600 rounded-lg cursor-move
-                                     hover:border-orange-400 transition-all duration-300"
+                            onClick={() => setPriorityOrder([option])}
+                            className={`p-4 rounded-lg border-2 text-left transition-all duration-300 ${
+                              priorityOrder[0] === option
+                                ? 'border-orange-400 bg-orange-900/30 text-orange-300'
+                                : 'border-gray-600 bg-gray-800/30 hover:border-orange-400'
+                            }`}
                           >
                             <div className="flex items-center gap-3">
                               <span className="w-6 h-6 bg-orange-500 text-black rounded-full flex items-center justify-center text-sm font-bold">
@@ -504,9 +507,16 @@ const ScenarioTraining = () => {
                               </span>
                               <span className="text-green-200">{option}</span>
                             </div>
-                          </div>
+                          </button>
                         ))}
                       </div>
+                      
+                      {priorityOrder.length > 0 && (
+                        <div className="mt-4 p-3 bg-orange-900/20 border border-orange-500/30 rounded-lg">
+                          <p className="text-orange-300 font-bold">선택한 우선순위:</p>
+                          <p className="text-green-200">{priorityOrder[0]}</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
