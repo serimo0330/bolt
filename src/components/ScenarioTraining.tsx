@@ -51,6 +51,110 @@ const ScenarioTraining = () => {
     }
   }, [scenario, startTime]);
 
+  // SOC 도구 정보 함수 추가
+  const getSOCTool = (stepId: number) => {
+    const socTools = {
+      1: {
+        name: "Splunk SIEM",
+        type: "보안 정보 및 이벤트 관리",
+        icon: "🔍",
+        color: "purple" as const,
+        data: {
+          "탐지된 이벤트": "1,247개",
+          "위험도": "HIGH",
+          "영향받은 자산": "FIN-PC-07",
+          "공격 벡터": "Email Attachment"
+        }
+      },
+      2: {
+        name: "CrowdStrike Falcon",
+        type: "엔드포인트 탐지 및 대응",
+        icon: "🛡️",
+        color: "cyan" as const,
+        data: {
+          "프로세스 분석": "ransomware.exe 탐지",
+          "행위 분석": "파일 암호화 시도",
+          "네트워크 연결": "203.0.113.45:443",
+          "위협 점수": "95/100"
+        }
+      },
+      3: {
+        name: "Volatility Framework",
+        type: "메모리 포렌식 도구",
+        icon: "🧠",
+        color: "green" as const,
+        data: {
+          "메모리 덤프": "4GB 수집 완료",
+          "실행 프로세스": "12개 악성 프로세스",
+          "네트워크 연결": "3개 외부 연결",
+          "암호화 키": "메모리에서 발견"
+        }
+      },
+      4: {
+        name: "Wireshark",
+        type: "네트워크 프로토콜 분석기",
+        icon: "🌐",
+        color: "yellow" as const,
+        data: {
+          "캡처된 패킷": "15,432개",
+          "외부 통신": "malware-c2.evil.com",
+          "데이터 유출": "감지되지 않음",
+          "암호화 트래픽": "TLS 1.3"
+        }
+      },
+      5: {
+        name: "Maltego",
+        type: "위협 인텔리전스 플랫폼",
+        icon: "🕵️",
+        color: "orange" as const,
+        data: {
+          "IP 평판": "악성으로 분류",
+          "도메인 분석": "최근 등록됨",
+          "지리적 위치": "동유럽",
+          "연관 위협": "Conti 랜섬웨어"
+        }
+      },
+      6: {
+        name: "Nessus",
+        type: "취약점 스캐너",
+        icon: "🔍",
+        color: "blue" as const,
+        data: {
+          "스캔된 호스트": "1개",
+          "발견된 취약점": "3개 (중간 위험)",
+          "패치 상태": "최신",
+          "방화벽 상태": "활성화됨"
+        }
+      },
+      7: {
+        name: "Veeam Backup",
+        type: "백업 및 복구 솔루션",
+        icon: "💾",
+        color: "indigo" as const,
+        data: {
+          "최신 백업": "2024-01-14 23:00",
+          "백업 상태": "정상",
+          "복구 시간": "예상 2시간",
+          "데이터 무결성": "검증됨"
+        }
+      },
+      8: {
+        name: "ServiceNow ITSM",
+        type: "IT 서비스 관리",
+        icon: "📋",
+        color: "purple" as const,
+        data: {
+          "인시던트 번호": "INC0001234",
+          "우선순위": "P1 - Critical",
+          "할당된 팀": "보안팀",
+          "상태": "진행 중"
+        }
+      }
+    };
+
+    return socTools[stepId as keyof typeof socTools] || null;
+  };
+
   // 8단계 구성 데이터
   const getStepData = (stepId: number) => {
     const baseData = {
@@ -269,113 +373,6 @@ const ScenarioTraining = () => {
     if (isCorrect) {
       setCompletedSteps(prev => [...prev, currentStep]);
     }
-  };
-
-  // SOC 도구 정보 가져오기
-  const getSOCTool = (stepId: number) => {
-    if (!scenarioId || parseInt(scenarioId) !== 1) return null;
-    
-    const tools = {
-      1: {
-        name: "CrowdStrike Falcon EDR",
-        type: "EDR Console",
-        color: "purple",
-        icon: "🖥️",
-        data: {
-          processName: "ransomware.exe",
-          pid: "4892",
-          parentProcess: "explorer.exe",
-          networkConnections: "203.0.113.45:443",
-          fileActivity: "1,247 files encrypted"
-        }
-      },
-      2: {
-        name: "Splunk Enterprise Security",
-        type: "SIEM Query Console",
-        color: "cyan",
-        icon: "📊",
-        data: {
-          query: 'source="email" AND dest="FIN-PC-07" AND attachment="*.exe"',
-          results: "1 event found",
-          sourceIP: "203.0.113.45",
-          timestamp: "2024-01-15 14:20:15"
-        }
-      },
-      3: {
-        name: "Cisco ISE Network Access Control",
-        type: "Network Security Console",
-        color: "green",
-        icon: "🌐",
-        data: {
-          deviceName: "FIN-PC-07",
-          macAddress: "00:1B:44:11:3A:B7",
-          isolationStatus: "QUARANTINED",
-          vlan: "ISOLATION_VLAN_100"
-        }
-      },
-      4: {
-        name: "Volatility Memory Analysis",
-        type: "Digital Forensics Toolkit",
-        color: "purple",
-        icon: "🔍",
-        data: {
-          dumpFile: "FIN-PC-07_memory.raw",
-          size: "8.0 GB",
-          maliciousProcesses: "2 detected",
-          artifacts: "Encryption keys, C2 communications"
-        }
-      },
-      5: {
-        name: "MISP Threat Intelligence",
-        type: "Threat Intelligence Platform",
-        color: "yellow",
-        icon: "🧠",
-        data: {
-          fileHash: "a1b2c3d4e5f6789012345678901234567890abcd",
-          threatFamily: "WannaCry Variant",
-          firstSeen: "2024-01-10",
-          confidence: "High (85%)"
-        }
-      },
-      6: {
-        name: "IBM QRadar Security Intelligence",
-        type: "SIEM Impact Dashboard",
-        color: "orange",
-        icon: "📈",
-        data: {
-          affectedAssets: "1 endpoint",
-          riskScore: "9.2/10",
-          businessImpact: "High",
-          containmentStatus: "Isolated"
-        }
-      },
-      7: {
-        name: "Phantom SOAR Platform",
-        type: "SOAR Playbook Console",
-        color: "blue",
-        icon: "⚡",
-        data: {
-          playbookName: "Ransomware Initial Response",
-          status: "Executing",
-          completedActions: "5/8",
-          nextAction: "Evidence Collection"
-        }
-      },
-      8: {
-        name: "ServiceNow Security Incident Response",
-        type: "Incident Management System",
-        color: "indigo",
-        icon: "📋",
-        data: {
-          ticketNumber: "INC-2024-0115-001",
-          assignedTeam: "Incident Analysis Team",
-          priority: "P1 - Critical",
-          status: "Transferred"
-        }
-      }
-    };
-    
-    return tools[stepId] || null;
   };
 
   const handleNextStep = () => {
@@ -663,6 +660,57 @@ const ScenarioTraining = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* SOC 도구 연동 */}
+                {scenarioId && parseInt(scenarioId) === 1 && (() => {
+                  const socTool = getSOCTool(currentStep);
+                  if (!socTool) return null;
+                  
+                  const colorClasses = {
+                    purple: 'border-purple-500 bg-purple-900/20',
+                    cyan: 'border-cyan-500 bg-cyan-900/20',
+                    green: 'border-green-500 bg-green-900/20',
+                    yellow: 'border-yellow-500 bg-yellow-900/20',
+                    orange: 'border-orange-500 bg-orange-900/20',
+                    blue: 'border-blue-500 bg-blue-900/20',
+                    indigo: 'border-indigo-500 bg-indigo-900/20'
+                  };
+                  
+                  return (
+                    <div className={`p-6 rounded-lg border-2 ${colorClasses[socTool.color]} animate-fade-in`}>
+                      <div className="flex items-center gap-3 mb-4">
+                        <span className="text-2xl">{socTool.icon}</span>
+                        <div>
+                          <h3 className="text-xl font-bold text-white">{socTool.name}</h3>
+                          <p className="text-gray-300">{socTool.type}</p>
+                        </div>
+                        <div className="ml-auto">
+                          <div className="flex items-center gap-2 text-green-400">
+                            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                            <span className="text-sm font-bold">연결됨</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-black/50 p-4 rounded-lg font-mono text-sm">
+                        <div className="text-green-400 mb-2">
+                          {socTool.icon} 시스템 분석 중...
+                        </div>
+                        <div className="space-y-1 text-gray-300">
+                          {Object.entries(socTool.data).map(([key, value]) => (
+                            <div key={key} className="flex justify-between">
+                              <span className="text-yellow-300">{key}:</span>
+                              <span className="text-green-200">{value}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="text-green-400 mt-2 animate-pulse">
+                          ✓ 분석 완료
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
 
                 {/* 네비게이션 버튼 */}
                 <div className="flex justify-between">
