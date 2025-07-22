@@ -1264,19 +1264,26 @@ const ScenarioTraining = () => {
         {!isStarted ? (
           /* 시나리오 브리핑 */
           <div className="max-w-4xl mx-auto">
-            {/* 간단한 시나리오 제목 */}
-            <div className="text-left mb-8">
-              <h1 className="text-4xl font-bold text-yellow-400 mb-4">
-                시나리오 {scenario.id}: {scenario.title}
-              </h1>
-              <div className="flex items-center justify-center gap-4">
-                <span className={`px-4 py-2 rounded-lg border font-bold ${getPriorityColor(scenario.priority)}`}>
-                  {scenario.priority} 긴급
-                </span>
-                <span className="text-cyan-400">역할: {scenario.role}</span>
-                <div className="flex items-center gap-2 text-green-400">
-                  <Clock className="w-5 h-5" />
-                  <span className="text-lg font-bold">10분</span>
+            {/* 통합된 시나리오 헤더 */}
+            <div className="bg-black/50 backdrop-blur-sm border border-yellow-500/30 rounded-lg p-6 mb-8">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <Info className="w-6 h-6 text-yellow-400" />
+                  <h1 className="text-3xl font-bold text-yellow-400">
+                    시나리오 {scenario.id}: {scenario.title}
+                  </h1>
+                </div>
+                <div className="flex items-center gap-4">
+                  <span className={`px-3 py-1 rounded-lg border text-sm font-bold ${getPriorityColor(scenario.priority)}`}>
+                    {scenario.priority} 긴급
+                  </span>
+                  <span className="text-cyan-400 text-sm">
+                    역할: {scenario.role}
+                  </span>
+                  <div className="flex items-center gap-2 text-green-400">
+                    <Clock className="w-4 h-4" />
+                    <span className="text-sm font-bold">10분</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1285,9 +1292,9 @@ const ScenarioTraining = () => {
             <div className="bg-black/50 backdrop-blur-sm border border-red-500/30 rounded-lg p-6 mb-6">
               <div className="flex items-center gap-3 mb-4">
                 <AlertTriangle className="w-6 h-6 text-red-400" />
-                <h3 className="text-2xl font-bold text-red-400">상황 정보</h3>
+                <h3 className="text-xl font-bold text-red-400">상황 정보</h3>
               </div>
-              <p className="text-green-200 text-lg leading-relaxed">
+              <p className="text-green-200 leading-relaxed">
                 {scenario.situation}
               </p>
             </div>
@@ -1295,8 +1302,8 @@ const ScenarioTraining = () => {
             {/* 대응 흐름 */}
             <div className="bg-black/50 backdrop-blur-sm border border-blue-500/30 rounded-lg p-6 mb-6">
               <div className="flex items-center gap-3 mb-4">
-                <Clock className="w-6 h-6 text-blue-400" />
-                <h3 className="text-2xl font-bold text-blue-400">대응 흐름:</h3>
+                <Target className="w-6 h-6 text-blue-400" />
+                <h3 className="text-xl font-bold text-blue-400">대응 흐름</h3>
               </div>
               <p className="text-green-200 text-sm leading-relaxed whitespace-pre-line">
                 {scenario.flow}
@@ -1307,22 +1314,43 @@ const ScenarioTraining = () => {
             <div className="bg-black/50 backdrop-blur-sm border border-purple-500/30 rounded-lg p-6 mb-8">
               <div className="flex items-center gap-3 mb-4">
                 <CheckCircle className="w-6 h-6 text-purple-400" />
-                <h3 className="text-2xl font-bold text-purple-400">대응 결과:</h3>
+                <h3 className="text-xl font-bold text-purple-400">대응 결과</h3>
               </div>
               <p className="text-green-200 text-sm leading-relaxed">
                 {scenario.result}
               </p>
             </div>
 
+            {/* 8단계 진행 과정 */}
+            <div className="bg-black/50 backdrop-blur-sm border border-green-500/30 rounded-lg p-6 mb-8">
+              <div className="flex items-center gap-3 mb-4">
+                <BookOpen className="w-6 h-6 text-green-400" />
+                <h3 className="text-xl font-bold text-green-400">8단계 대응 과정</h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {trainingSteps.map((step, index) => (
+                  <div key={step.id} className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg">
+                    <div className="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                      {step.id}
+                    </div>
+                    <div>
+                      <div className="font-bold text-white text-sm">{step.title}</div>
+                      <div className="text-xs text-gray-400">{step.tool}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* 시작 버튼 */}
             <div className="text-center">
               <button
                 onClick={handleStartTraining}
-                className="w-full px-12 py-6 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-bold text-2xl
-                         transition-all duration-300 flex items-center justify-center gap-3"
+                className="w-full px-6 py-4 bg-blue-600 text-white rounded-lg font-bold text-xl
+                         hover:bg-blue-700 transition-all duration-300 flex items-center justify-center gap-3"
               >
-                <Play className="w-8 h-8" />
-                모의훈련 {scenario.id} 시작
+                <Play className="w-6 h-6" />
+                모의훈련 1 시작
               </button>
             </div>
           </div>
