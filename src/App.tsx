@@ -5,7 +5,6 @@ import { QuizChallenge } from './components/QuizChallenge';
 import CourseSelection from './components/CourseSelection';
 import TraditionalSOCCourse from './components/TraditionalSOCCourse';
 import NextGenSOCCourse from './components/NextGenSOCCourse';
-import ScenarioTraining from './components/ScenarioTraining';
 
 function App() {
   const navigate = useNavigate();
@@ -30,7 +29,6 @@ function App() {
         <Route path="/courses" element={<CourseSelection />} />
         <Route path="/course/traditional" element={<TraditionalSOCCourse />} />
         <Route path="/course/nextgen" element={<NextGenSOCCourse />} />
-        <Route path="/scenario/:scenarioId" element={<ScenarioTraining />} />
       </Routes>
     </div>
   );
