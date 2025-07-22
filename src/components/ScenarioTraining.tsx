@@ -1285,39 +1285,17 @@ const ScenarioTraining = () => {
                     <span className="text-sm font-bold">10분</span>
                   </div>
                 </div>
-              </div>
-            </div>
-
-            {/* 상황 정보 */}
-            <div className="bg-black/50 backdrop-blur-sm border border-red-500/30 rounded-lg p-6 mb-6">
+        {!isStarted ? (
+          /* 시나리오 브리핑 */
+          <div className="max-w-4xl mx-auto">
+            {/* 상황 정보만 표시 */}
+            <div className="bg-black/50 backdrop-blur-sm border border-red-500/30 rounded-lg p-6 mb-8">
               <div className="flex items-center gap-3 mb-4">
                 <AlertTriangle className="w-6 h-6 text-red-400" />
-                <h3 className="text-xl font-bold text-red-400">상황 정보</h3>
+                <h3 className="text-2xl font-bold text-red-400">상황 정보</h3>
               </div>
-              <p className="text-green-200 leading-relaxed">
+              <p className="text-green-200 text-lg leading-relaxed">
                 {scenario.situation}
-              </p>
-            </div>
-
-            {/* 대응 흐름 */}
-            <div className="bg-black/50 backdrop-blur-sm border border-blue-500/30 rounded-lg p-6 mb-6">
-              <div className="flex items-center gap-3 mb-4">
-                <Target className="w-6 h-6 text-blue-400" />
-                <h3 className="text-xl font-bold text-blue-400">대응 흐름</h3>
-              </div>
-              <p className="text-green-200 text-sm leading-relaxed whitespace-pre-line">
-                {scenario.flow}
-              </p>
-            </div>
-
-            {/* 대응 결과 */}
-            <div className="bg-black/50 backdrop-blur-sm border border-purple-500/30 rounded-lg p-6 mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <CheckCircle className="w-6 h-6 text-purple-400" />
-                <h3 className="text-xl font-bold text-purple-400">대응 결과</h3>
-              </div>
-              <p className="text-green-200 text-sm leading-relaxed">
-                {scenario.result}
               </p>
             </div>
 
