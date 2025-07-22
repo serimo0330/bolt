@@ -1540,13 +1540,13 @@ const ScenarioTraining = () => {
         ) : (
           /* 단계별 훈련 화면 */
           <div className="max-w-6xl mx-auto">
-            {/* 진행 상황 */}
+            <span className="text-green-300 text-lg">{Math.min(currentStep, totalSteps)} / {totalSteps}</span>
             <div className="bg-black/50 backdrop-blur-sm border border-blue-500/30 rounded-lg p-4 mb-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold text-blue-400">진행 상황</h2>
                 <span className="text-blue-400 font-bold">{currentStep} / 8</span>
               </div>
-              <div className="flex gap-2">
+              const isCurrent = stepNumber === currentStep && currentStep <= totalSteps;
                 {Array.from({ length: 8 }, (_, i) => (
                   <div
                     key={i + 1}
